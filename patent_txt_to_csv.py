@@ -134,5 +134,5 @@ class PatentTxtToTabular:
                     writer.writerows(rows)
 
 
-
-
+if __name__ == "__main__":
+    main()

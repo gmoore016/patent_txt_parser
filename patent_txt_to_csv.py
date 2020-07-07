@@ -108,6 +108,31 @@ class PatentTxtToTabular:
 
         self.tables[current_entity].append(record)
 
+    def write_csv_files(self):
+
+        self.logger.info(
+            colored("writing csv files to %s ...", "green"), self.output_path.resolve()
+        )
+
+        for tablename, rows in self.tables.items():
+            output_file = self.output_path / f"{tablename}.csv"
+
+            if output_file.exists():
+                self.logger.debut(
+                    colored("CSV file %s exists; records will be appended.", "yellow"),
+                    output_file
+                )
+
+                with output_file.open("a") as _fh:
+                    writer = csv.DictWriter(_fh, fieldnames=self.fieldnames[tablename])
+                    writer.writerows(rows)
+
+            else:
+                with output_file.open("w") as _fh:
+                    writer = csv.DictWriter(_fh, fieldnames=self.fieldnames[tablename])
+                    writer.writeheader()
+                    writer.writerows(rows)
+
 
 
 

@@ -63,6 +63,7 @@ RLAP:
     APD: relatedDocDate
 
 CLAS:
+  <entity>: classification
   <fields>:
     OCL: USClassification
     ICL: IntlClassification

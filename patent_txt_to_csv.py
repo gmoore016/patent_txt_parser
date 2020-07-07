@@ -35,7 +35,6 @@ class PatentTxtToTabular:
         self.tables = defaultdict(list)
         self.table_pk_idx = defaultdict(lambda: defaultdict(int))
 
-
     def yield_txt_doc(self, filepath):
         # List for storing text
         txt_doc = []
@@ -94,6 +93,7 @@ class PatentTxtToTabular:
         header = "PATN"
         current_entity = config[header]['<entity>']
         subconfig = self.config[header]['<fields>']
+        subconfig_regex = [re.compile(fieldname) for fieldname in subconfig]
         record = {}
 
         # Go through each line of the file
@@ -108,10 +108,11 @@ class PatentTxtToTabular:
                 # Change the header and current config if so
                 current_entity = config[header]['<entity>']
                 subconfig = self.config[header]['<fields>']
+                subconfig_regex = [re.compile(fieldname) for fieldname in subconfig]
                 record = {}
 
             # If it's a field we care about, save it
-            if header in subconfig:
+            if any(regex.match(header) for regex in subconfig_regex):
                 fieldname = subconfig[header]
                 value = line[4:].strip()
                 record[fieldname] = value

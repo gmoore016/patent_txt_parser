@@ -1,0 +1,93 @@
+PATN:
+  <entity>: patent
+  <primary_key>: WKU
+  <filename_field>: source_file
+  <fields>:
+    WKU: docNumber
+    APN: appNum
+    APT: filingType
+    SRC: seriesCode
+    TTL: Title
+    NCL: numClaims
+    EXP: examiner1
+    EXA: examiner2
+    APD: filingDate
+    ISD: docDate
+
+CLMS:
+  <entity>: claim
+  <fields>:
+    # Concatenate all sequential sections starting with PA
+    "PA*":
+      <fieldname>: claim_text
+      <joiner>: "\n"
+
+DCLM:
+  <entity>: claim
+  <fields>:
+    "PA*":
+      <fieldname>: claim_text
+      <joiner>: "\n"
+
+ABST:
+  <entity>: abstract
+  <fields>:
+    "PA*":
+      <fieldname>: abs_text
+      <joiner>: "\n"
+
+INVT:
+  <entity>: inventor
+  <fields>:
+    NAM: applicantOrgname
+    CTY: applicantResCity
+    STA: applicantResState
+    CNT: applicantResCountry
+
+ASSG:
+  <entity>: assignee
+  <fields>:
+    NAM: assigneeOrgname
+    COD: assigneeRole
+
+PRIR:
+  <entity>: foreign_filing
+  <fields>:
+    CNT: foreignCode
+    APD: foreignFiling
+
+RLAP:
+  <entity>: related_document
+  <fields>:
+    APN: relatedDocNum
+    APD: relatedDocDate
+
+CLAS:
+  <fields>:
+    OCL: USClassification
+    ICL: IntlClassification
+    EDF: IPCEdition
+    XCL: USPCSecondary
+
+UREF:
+  <entity>: citation
+  <fields>:
+    PNO: citDocnum
+    NAM: citName
+    ISD: citDate
+    OCL: citClassMain
+
+FREF:
+  <entity>: citation
+  <fields>:
+    CNT: citCountry
+    PNO: citDocnum
+    ISD: citDate
+    OCL: citClassMain
+
+OREF:
+  <entity>: citation
+  <fields>:
+    "PA*":
+      <fieldname>: citOtherCit
+      <joiner>: "|#|"

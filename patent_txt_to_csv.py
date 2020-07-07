@@ -90,7 +90,9 @@ class PatentTxtToTabular:
     def process_doc(self, txt_doc):
         """The method for actually reading the contents of the CSV files"""
         # Go through each line of the file
-        for line in self.text_doc.split('\n'):
+        # Need to skip first two lines since they contain metadata
+        # and we don't want to write an empty patent record
+        for line in self.text_doc.split('\n')[2:]:
 
             # Get the first four characters to see if we're in a new logical unit
             header = line[0:4].strip()
@@ -101,11 +103,13 @@ class PatentTxtToTabular:
                 subconfig = self.config[header]['<fields>']
                 record = {}
 
+            # If it's a field we care about, save it
             if header in subconfig:
                 fieldname = subconfig[header]
                 value = line[4:].strip()
                 record[fieldname] = value
 
+        # Add to list of those entities found so far
         self.tables[current_entity].append(record)
 
     def write_csv_files(self):

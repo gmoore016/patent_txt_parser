@@ -2,10 +2,12 @@ import argparse
 import csv
 import logging
 import yaml
+import regex
 
 from collections import defaultdict
 from pathlib import Path
 from pprint import pformat
+
 
 class PatentTxtToTabular:
     def __init__(self, txt_input, config, output_path, output_type, logger, **kwargs,):

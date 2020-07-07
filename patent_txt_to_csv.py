@@ -134,5 +134,72 @@ class PatentTxtToTabular:
                     writer.writerows(rows)
 
 
+def main():
+    """Takes arguments from command line"""
+    arg_parser = argparse.ArgumentParser(description="Description: {}".format(__file__))
+
+    arg_parser.add_argument(
+        '-v', "--verbose", action="store_true", default=False, help="increase verbosity"
+    )
+
+    arg_parser.add_argument(
+        '-q', "--quiet", action="store_true", default=False, help="quiet operation"
+    )
+
+    arg_parser.add_argument(
+        '-i',
+        "--txt-input",
+        action="store",
+        nargs="+",
+        required=True,
+        help="TXT file or directory of TXT files (*.{txt, TXT}) to parse recursively" 
+             "(multiple arguments can be passed",
+    )
+
+    arg_parser.add_argument(
+        '-r',
+        "--recurse",
+        action="store_true",
+        help="if supplied, the parser will search subdirectories for"
+        " TXT files (*.{txt, TXT}) to parse",
+    )
+
+    arg_parser.add_argument(
+        '-c',
+        "--config",
+        action="store",
+        required=True,
+        help="config file (in YAML format)",
+    )
+
+    arg_parser.add_argument(
+        '-o',
+        "--output-path",
+        action="store",
+        required=True,
+        help="path to folder in which to save output (will be created if necessary)",
+    )
+
+    arg_parser.add_argument(
+        "--output-type",
+        choices=["csv", "sqlite"],
+        action="store",
+        default="csv",
+        help="output csv files (one per table, default) or a sqlite database",
+    )
+
+    args = arg_parser.parse_args()
+
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    log_level = logging.CRITICAL if args.quiet else log_level
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(log_level)
+    logger.addHandler(logging.StreamHandler())
+
+    convertor = PatentTxtToTabular(**vars(args), logger=logger)
+    convertor.convert()
+
+
 if __name__ == "__main__":
     main()

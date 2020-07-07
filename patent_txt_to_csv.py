@@ -4,7 +4,7 @@ class PatentTxtToTabular:
         self.logger = logger
 
         self.txt_files = []
-        for input_path in xml_input:
+        for input_path in txt_input:
             for path in expand_paths(input_path):
                 if path.is_file():
                     self.txt_files.append(path)

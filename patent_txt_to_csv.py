@@ -89,6 +89,13 @@ class PatentTxtToTabular:
 
     def process_doc(self, txt_doc):
         """The method for actually reading the contents of the CSV files"""
+        # Initialize with PATN since we know first section of document will
+        # be a patent.
+        header = "PATN"
+        current_entity = config[header]['<entity>']
+        subconfig = self.config[header]['<fields>']
+        record = {}
+
         # Go through each line of the file
         # Need to skip first two lines since they contain metadata
         # and we don't want to write an empty patent record

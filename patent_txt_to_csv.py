@@ -226,12 +226,12 @@ class PatentTxtToTabular:
                     output_file
                 )
 
-                with output_file.open("a") as _fh:
+                with output_file.open("a", newline='') as _fh:
                     writer = csv.DictWriter(_fh, fieldnames=self.fieldnames[tablename])
                     writer.writerows(rows)
 
             else:
-                with output_file.open("w") as _fh:
+                with output_file.open("w", newline='') as _fh:
                     writer = csv.DictWriter(_fh, fieldnames=self.fieldnames[tablename])
                     writer.writeheader()
                     writer.writerows(rows)

@@ -3,6 +3,7 @@ import csv       # Handles CSV output
 import logging   # Handles logging output
 import yaml      # Takes input files
 import re        # Regular expressions
+import shutil    # Handles system paths
 
 from collections import defaultdict   # Dictionaries that provide default values
 from pathlib import Path              # Feature-rich path objects
@@ -21,7 +22,7 @@ except ImportError:
 
 
 class PatentTxtToTabular:
-    def __init__(self, txt_input, config, output_path, output_type, logger, **kwargs,):
+    def __init__(self, txt_input, config, output_path, output_type, logger, clean, **kwargs,):
 
         self.logger = logger
 
@@ -41,6 +42,9 @@ class PatentTxtToTabular:
         # Make sure output path is valid before parsing so we don't waste
         # all that time!
         self.output_path = Path(output_path)
+        # Delete existing contents if we want a new run
+        if clean:
+            shutil.rmtree(self.output_path)
         self.output_path.mkdir(parents=True, exist_ok=True)
 
         # Output to csv or sqlite
@@ -249,11 +253,13 @@ class PatentTxtToTabular:
                     writer.writeheader()
                     writer.writerows(rows)
 
+
 def expand_paths(path_expr):
     path = Path(path_expr).expanduser()
     return Path(path.root).glob(
         str(Path("").joinpath(*path.parts[1:] if path.is_absolute() else path.parts))
     )
+
 
 def main():
     """Takes arguments from command line"""
@@ -307,6 +313,12 @@ def main():
         action="store",
         default="csv",
         help="output csv files (one per table, default) or a sqlite database",
+    )
+
+    arg_parser.add_argument(
+        "--clean",
+        action="store_true",
+        help="If supplied, parser will empty output directory before parsing"
     )
 
     args = arg_parser.parse_args()

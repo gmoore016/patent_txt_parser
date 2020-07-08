@@ -156,6 +156,11 @@ class PatentTxtToTabular:
                     writer.writeheader()
                     writer.writerows(rows)
 
+def expand_paths(path_expr):
+    path = Path(path_expr).expanduser()
+    return Path(path.root).glob(
+        str(Path("").joinpath(*path.parts[1:] if path.is_absolute() else path.parts))
+    )
 
 def main():
     """Takes arguments from command line"""

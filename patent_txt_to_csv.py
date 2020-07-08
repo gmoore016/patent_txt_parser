@@ -184,9 +184,29 @@ class PatentTxtToTabular:
                 # If the config file entry matches the file header,
                 # pull the fieldname from the YAML file
                 if re.match(entry, header):
-                    fieldname = subconfig[entry]
+                    # Get the text to store
                     value = line[4:].strip()
-                    record[fieldname] = value
+
+                    # If the value is simply the fieldname, it's one-to-one
+                    # and we can just save the value
+                    if isinstance(subconfig[entry], str):
+                        fieldname = subconfig[entry]
+                        record[fieldname] = value
+
+                    # If the value is parameterized, we need to handle
+                    # many-to-one issues
+                    elif "<fieldname>" in subconfig[entry]:
+                        # First, save the fieldname
+                        fieldname = subconfig[entry]["<fieldname>"]
+
+                        # If we've seen one before, add the new one with a delimiter
+                        if fieldname in record:
+                            record[fieldname] = record[fieldname] \
+                                                + subconfig[entry]["<joiner>"] \
+                                                + value
+                        # Otherwise, just save the value for now
+                        else:
+                            record[fieldname] = value
 
         # Add to list of those entities found so far
         self.tables[current_entity].append(record)

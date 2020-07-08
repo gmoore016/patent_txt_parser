@@ -77,7 +77,7 @@ class PatentTxtToTabular:
                 txt_doc.append(line)
 
             # Make sure you yield the final document!
-            yield(i - len(txtdoc), "".join(txtdoc))
+            yield i - len(txt_doc), "".join(txt_doc)
 
     def convert(self):
         if not self.txt_files:
@@ -234,7 +234,7 @@ class PatentTxtToTabular:
             output_file = self.output_path / f"{tablename}.csv"
 
             if output_file.exists():
-                self.logger.debut(
+                self.logger.debug(
                     colored("CSV file %s exists; records will be appended.", "yellow"),
                     output_file
                 )

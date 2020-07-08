@@ -18,21 +18,21 @@ CLMS:
   <entity>: claim
   <fields>:
     # Concatenate all sequential sections starting with PA
-    "PA\\S":
+    "PA[A-Z1-9]":
       <fieldname>: claim_text
       <joiner>: "\n"
 
 DCLM:
   <entity>: claim
   <fields>:
-    "PA\\S":
+    "PA[A-Z1-9]":
       <fieldname>: claim_text
       <joiner>: "\n"
 
 ABST:
   <entity>: abstract
   <fields>:
-    "PA\\S":
+    "PA[A-Z1-9]":
       <fieldname>: abs_text
       <joiner>: "\n"
 
@@ -89,6 +89,6 @@ FREF:
 OREF:
   <entity>: citation
   <fields>:
-    "PA\\S":
+    "PA[A-Z1-9]":
       <fieldname>: citOtherCit
       <joiner>: "|#|"

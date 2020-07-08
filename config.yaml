@@ -89,6 +89,6 @@ FREF:
 OREF:
   <entity>: citation
   <fields>:
-    "PA*":
+    "PA\\S":
       <fieldname>: citOtherCit
       <joiner>: "|#|"

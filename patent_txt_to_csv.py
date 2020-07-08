@@ -155,6 +155,11 @@ class PatentTxtToTabular:
                 + "\n ".join(pformat(config).split("\n"))
             )
 
+        for config in self.config.values():
+            add_fieldnames(config, [])
+
+        return fieldnames
+
     def process_doc(self, txt_doc):
         """The method for actually reading the contents of the CSV files"""
         # Initialize with PATN since we know first section of document will

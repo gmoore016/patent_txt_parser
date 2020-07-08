@@ -7,7 +7,17 @@ import re        # Regular expressions
 from collections import defaultdict   # Dictionaries that provide default values
 from pathlib import Path              # Feature-rich path objects
 from pprint import pformat            # Prints data in a nice way
-from termcolor import colored         # Allows colored terminal output
+
+try:
+    from termcolor import colored         # Allows colored terminal output
+except ImportError:
+    logging.debug("termcolor not available")
+
+    def colored(text, _color):
+        """
+        Dummy function in case termcolor is not available
+        """
+        return text
 
 
 class PatentTxtToTabular:

@@ -180,11 +180,13 @@ class PatentTxtToTabular:
                 subconfig_regex = [re.compile(fieldname) for fieldname in subconfig]
                 record = {}
 
-            # If it's a field we care about, save it
-            if any(regex.match(header) for regex in subconfig_regex):
-                fieldname = subconfig[header]
-                value = line[4:].strip()
-                record[fieldname] = value
+            for entry in subconfig:
+                # If the config file entry matches the file header,
+                # pull the fieldname from the YAML file
+                if re.match(entry, header):
+                    fieldname = subconfig[entry]
+                    value = line[4:].strip()
+                    record[fieldname] = value
 
         # Add to list of those entities found so far
         self.tables[current_entity].append(record)

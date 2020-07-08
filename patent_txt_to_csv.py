@@ -168,14 +168,14 @@ class PatentTxtToTabular:
         # Go through each line of the file
         # Need to skip first two lines since they contain metadata
         # and we don't want to write an empty patent record
-        for line in self.text_doc.split('\n')[2:]:
+        for line in txt_doc.split('\n')[2:]:
 
             # Get the first four characters to see if we're in a new logical unit
             header = line[0:4].strip()
             if len(header) == 4:
                 self.tables[current_entity].append(record)
                 # Change the header and current config if so
-                current_entity = config[header]['<entity>']
+                current_entity = self.config[header]['<entity>']
                 subconfig = self.config[header]['<fields>']
                 subconfig_regex = [re.compile(fieldname) for fieldname in subconfig]
                 record = {}

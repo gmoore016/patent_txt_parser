@@ -108,6 +108,53 @@ class PatentTxtToTabular:
 
         self.init_cache_vars()
 
+    def get_fieldnames(self):
+        fieldnames = defaultdict(list)
+
+        def add_fieldnames(config, _fieldnames, parent_entity=None):
+            if isinstance(config, str):
+                if ":" in config:
+                    _fieldnames.append(config.split(":")[0])
+                    return
+                _fieldnames.append(config)
+                return
+
+            if "<fieldname>" in config:
+                _fieldnames.append(config["<fieldname>"])
+                return
+
+            # If there's a new entity, we save the ids and recursively
+            # fetch the fieldnames in the substructure
+            if "<entity>" in config:
+                entity = config["<entity>"]
+                _fieldnames = []
+                if "<primary_key>" in config or parent_entity:
+                    _fieldnames.append("id")
+                if parent_entity:
+                    _fieldnames.append(f"{parent_entity}_id")
+                if "<filename_field>" in config:
+                    _fieldnames.append(config["<filename_field>"])
+                for subconfig in config["<fields>"].values():
+                    add_fieldnames(subconfig, _fieldnames, entity)
+
+                # Since different paths may go to same table, append to
+                # list of fieldnames here.
+                fieldnames[entity] = list(
+                    dict.fromkeys(fieldnames[entity] + _fieldnames).keys()
+                )
+                return
+
+            if isinstance(config, list):
+                for subconfig in config:
+                    add_fieldnames(subconfig, _fieldnames, parent_entity)
+                return
+
+            raise LookupError(
+                "Invalid configuration:"
+                + "\n "
+                + "\n ".join(pformat(config).split("\n"))
+            )
+
     def process_doc(self, txt_doc):
         """The method for actually reading the contents of the CSV files"""
         # Initialize with PATN since we know first section of document will

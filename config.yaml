@@ -18,21 +18,21 @@ CLMS:
   <entity>: claim
   <fields>:
     # Concatenate all sequential sections starting with PA
-    "PA\S":
+    "PA\\S":
       <fieldname>: claim_text
       <joiner>: "\n"
 
 DCLM:
   <entity>: claim
   <fields>:
-    "PA\S":
+    "PA\\S":
       <fieldname>: claim_text
       <joiner>: "\n"
 
 ABST:
   <entity>: abstract
   <fields>:
-    "PA\S":
+    "PA\\S":
       <fieldname>: abs_text
       <joiner>: "\n"
 

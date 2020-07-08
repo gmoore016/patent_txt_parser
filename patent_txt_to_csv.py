@@ -1,11 +1,11 @@
-import argparse
-import csv
-import logging
-import yaml
-import regex
+import argparse  # Takes command line arguments
+import csv       # Handles CSV output
+import logging   # Handles logging output
+import yaml      # Takes input files
+import re        # Regular expressions
 
-from collections import defaultdict
-from pathlib import Path
+from collections import defaultdict   # Dictionaries that provide default values
+from pathlib import Path              # Feature-rich path objects
 from pprint import pformat
 
 

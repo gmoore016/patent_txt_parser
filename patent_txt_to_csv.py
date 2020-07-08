@@ -178,12 +178,20 @@ class PatentTxtToTabular:
             # Get the first four characters to see if we're in a new logical unit
             header = line[0:4].strip()
             if len(header) == 4:
-                self.tables[current_entity].append(record)
                 # Change the header and current config if so
-                current_entity = self.config[header]['<entity>']
-                subconfig = self.config[header]['<fields>']
-                subconfig_regex = [re.compile(fieldname) for fieldname in subconfig]
-                record = {}
+                # If we care about the new section, write what we've found to a file
+                # and fetch the new subsections
+                if header in self.config:
+                    self.tables[current_entity].append(record)
+                    current_entity = self.config[header]['<entity>']
+                    subconfig = self.config[header]['<fields>']
+                    record = {}
+
+                # If we don't care about the new section, just say it has no relevant
+                # fields and continue. Don't create a new record or write yet, since that
+                # will create empty lines for the null section
+                else:
+                    subconfig = {}
 
             for entry in subconfig:
                 # If the config file entry matches the file header,

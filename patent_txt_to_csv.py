@@ -70,7 +70,7 @@ class PatentTxtToTabular:
                 # and restart
                 if line.startswith("PATN"):
                     if txt_doc:
-                        yield (i - len(txtdoc), "".join(txtdoc))
+                        yield i - len(txt_doc), "".join(txt_doc)
                     txt_doc = []
 
                 # Add line to current document
@@ -160,7 +160,7 @@ class PatentTxtToTabular:
         # Initialize with PATN since we know first section of document will
         # be a patent.
         header = "PATN"
-        current_entity = config[header]['<entity>']
+        current_entity = self.config[header]['<entity>']
         subconfig = self.config[header]['<fields>']
         subconfig_regex = [re.compile(fieldname) for fieldname in subconfig]
         record = {}

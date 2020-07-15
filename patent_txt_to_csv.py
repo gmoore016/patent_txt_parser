@@ -177,7 +177,7 @@ class PatentTxtToTabular:
         # Go through each line of the file
         # Need to skip first two lines since they contain metadata
         # and we don't want to write an empty patent record
-        for line in txt_doc.split('\n')[2:]:
+        for line in txt_doc.split('\n')[1:]:
 
             # Get the first four characters to see if we're in a new logical unit
             header = line[0:4].strip()

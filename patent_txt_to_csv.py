@@ -68,6 +68,9 @@ class PatentTxtToTabular:
         # Opens lines from file
         with open(filepath, "r") as _fh:
 
+            # Skip first line of header information
+            next(_fh)
+
             # Splits file at each PATN line
             for i, line in enumerate(_fh):
                 # When you get to the next patent, yield the current results

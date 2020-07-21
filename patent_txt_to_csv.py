@@ -169,6 +169,7 @@ class PatentTxtToTabular:
         # Initialize with PATN since we know first section of document will
         # be a patent.
         header = "PATN"
+        last_header = header
         current_entity = self.config[header]['<entity>']
         subconfig = self.config[header]['<fields>']
         splitter = None
@@ -181,6 +182,12 @@ class PatentTxtToTabular:
 
             # Get the first four characters to see if we're in a new logical unit
             header = line[0:4].strip()
+
+            # Keeps track of the last known header for evaluating whether multi-line
+            # statements are relevant
+            if header:
+                last_header = header
+
             if len(header) == 4:
                 # Change the header and current config if so
                 # If we care about the new section, write what we've found to a file
@@ -197,46 +204,53 @@ class PatentTxtToTabular:
                 else:
                     subconfig = {}
 
-            for entry in subconfig:
-                # If the config file entry matches the file header,
-                # pull the fieldname from the YAML file
-                if re.match(entry, header):
-                    # Get the text to store
-                    value = line[4:].strip()
+            # If there's no header but we're in a meaningful subconfig, we're continuing the
+            # same script as the previous line. Just keep appending.
+            elif not header and any(re.match(entry, last_header) for entry in subconfig):
+                # Fieldname must have been previously defined if last_header in subconfig
+                record[fieldname] = record[fieldname] + ' ' + line[4:].strip()
 
-                    # If the value is simply the fieldname, it's one-to-one
-                    # and we can just save the value
-                    if isinstance(subconfig[entry], str):
-                        fieldname = subconfig[entry]
-                        record[fieldname] = value
+            else:
+                for entry in subconfig:
+                    # If the config file entry matches the file header,
+                    # pull the fieldname from the YAML file
+                    if re.match(entry, header):
+                        # Get the text to store
+                        value = line[4:].strip()
 
-                    # If the value is parameterized, we need to handle
-                    # many-to-one issues
-                    elif "<fieldname>" in subconfig[entry]:
-                        # First, save the fieldname
-                        fieldname = subconfig[entry]["<fieldname>"]
-
-                        if "<splitter>" in subconfig[entry]:
-                            splitter = subconfig[entry]["<splitter>"]
-                        else:
-                            splitter = None
-
-                        # If we've seen one before, add the new one with a delimiter
-                        if fieldname in record:
-                            record[fieldname] = record[fieldname] \
-                                                + subconfig[entry]["<joiner>"] \
-                                                + value
-                        # Otherwise, just save the value for now
-                        else:
+                        # If the value is simply the fieldname, it's one-to-one
+                        # and we can just save the value
+                        if isinstance(subconfig[entry], str):
+                            fieldname = subconfig[entry]
                             record[fieldname] = value
 
-                    else:
-                        print("ERROR: Fields must be string or contain <fieldname>")
-                        raise LookupError
-                elif splitter:
-                    if re.match(splitter, header):
-                        self.tables[current_entity].append(record)
-                        record = {}
+                        # If the value is parameterized, we need to handle
+                        # many-to-one issues
+                        elif "<fieldname>" in subconfig[entry]:
+                            # First, save the fieldname
+                            fieldname = subconfig[entry]["<fieldname>"]
+
+                            if "<splitter>" in subconfig[entry]:
+                                splitter = subconfig[entry]["<splitter>"]
+                            else:
+                                splitter = None
+
+                            # If we've seen one before, add the new one with a delimiter
+                            if fieldname in record:
+                                record[fieldname] = record[fieldname] \
+                                                    + subconfig[entry]["<joiner>"] \
+                                                    + value
+                            # Otherwise, just save the value for now
+                            else:
+                                record[fieldname] = value
+
+                        else:
+                            print("ERROR: Fields must be string or contain <fieldname>")
+                            raise LookupError
+                    elif splitter:
+                        if re.match(splitter, header):
+                            self.tables[current_entity].append(record)
+                            record = {}
 
         # Add to list of those entities found so far
         self.tables[current_entity].append(record)

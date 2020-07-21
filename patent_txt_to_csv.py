@@ -171,7 +171,7 @@ class PatentTxtToTabular:
         header = "PATN"
         current_entity = self.config[header]['<entity>']
         subconfig = self.config[header]['<fields>']
-        subconfig_regex = [re.compile(fieldname) for fieldname in subconfig]
+        splitter = None
         record = {}
 
         # Go through each line of the file
@@ -216,6 +216,11 @@ class PatentTxtToTabular:
                         # First, save the fieldname
                         fieldname = subconfig[entry]["<fieldname>"]
 
+                        if "<splitter>" in subconfig[entry]:
+                            splitter = subconfig[entry]["<splitter>"]
+                        else:
+                            splitter = None
+
                         # If we've seen one before, add the new one with a delimiter
                         if fieldname in record:
                             record[fieldname] = record[fieldname] \
@@ -224,6 +229,14 @@ class PatentTxtToTabular:
                         # Otherwise, just save the value for now
                         else:
                             record[fieldname] = value
+
+                    else:
+                        print("ERROR: Fields must be string or contain <fieldname>")
+                        raise LookupError
+                elif splitter:
+                    if re.match(splitter, header):
+                        self.tables[current_entity].append(record)
+                        record = {}
 
         # Add to list of those entities found so far
         self.tables[current_entity].append(record)

@@ -21,6 +21,7 @@ CLMS:
     "PA[A-Z1-9]":
       <fieldname>: claim_text
       <joiner>: "\n"
+      <splitter>: "NUM"
 
 DCLM:
   <entity>: claim

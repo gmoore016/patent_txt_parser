@@ -174,6 +174,8 @@ class PatentTxtToTabular:
         subconfig = self.config[header]['<fields>']
         splitter = None
         record = {}
+        if "<filename_field>" in self.config[header]:
+            record[self.config[header]["<filename_field>"]] = self.current_filename
 
         # Go through each line of the file
         # Need to skip first two lines since they contain metadata
@@ -197,6 +199,8 @@ class PatentTxtToTabular:
                     current_entity = self.config[header]['<entity>']
                     subconfig = self.config[header]['<fields>']
                     record = {}
+                    if "<filename_field>" in self.config[header]:
+                        record[self.config[header]["<filename_field>"]] = self.current_filename
 
                 # If we don't care about the new section, just say it has no relevant
                 # fields and continue. Don't create a new record or write yet, since that

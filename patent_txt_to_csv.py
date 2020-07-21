@@ -171,7 +171,6 @@ class PatentTxtToTabular:
         header = "PATN"
         current_entity = self.config[header]['<entity>']
         subconfig = self.config[header]['<fields>']
-        subconfig_regex = [re.compile(fieldname) for fieldname in subconfig]
         record = {}
 
         # Go through each line of the file

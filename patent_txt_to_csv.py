@@ -224,6 +224,10 @@ class PatentTxtToTabular:
                         else:
                             record[fieldname] = value
 
+                    else:
+                        print("ERROR: Fields must be string or contain <fieldname>")
+                        raise LookupError
+
         # Add to list of those entities found so far
         self.tables[current_entity].append(record)
 

@@ -135,8 +135,6 @@ class PatentTxtToTabular:
             if "<entity>" in config:
                 entity = config["<entity>"]
                 _fieldnames = []
-                if "<primary_key>" in config or parent_entity:
-                    _fieldnames.append("id")
                 if parent_entity:
                     _fieldnames.append(f"{parent_entity}_id")
                 if "<filename_field>" in config:
@@ -165,6 +163,11 @@ class PatentTxtToTabular:
         for config in self.config.values():
             add_fieldnames(config, [])
 
+        for entity in fieldnames:
+            if entity != "patent":
+                fieldnames[entity] = ["parent_id"] + fieldnames[entity]
+            fieldnames[entity] = ["id"] + fieldnames[entity]
+
         return fieldnames
 
     def process_doc(self, txt_doc):
@@ -176,9 +179,14 @@ class PatentTxtToTabular:
         current_entity = self.config[header]['<entity>']
         subconfig = self.config[header]['<fields>']
         splitter = None
+        patent_pk = None
+        pk_counter = 0
         record = {}
         if "<filename_field>" in self.config[header]:
             record[self.config[header]["<filename_field>"]] = self.current_filename
+
+        if "<primary_key>" in self.config[header]:
+            pk_head = self.config[header]["<primary_key>"]
 
         # Go through each line of the file
         # Need to skip first two lines since they contain metadata
@@ -193,6 +201,12 @@ class PatentTxtToTabular:
             if header:
                 last_header = header
 
+            if header == pk_head:
+                # Primary keys must be unique
+                assert "id" not in record
+                record["id"] = line[4:].strip()
+                patent_pk = record["id"]
+
             if len(header) == 4:
                 # Change the header and current config if so
                 # If we care about the new section, write what we've found to a file
@@ -202,6 +216,9 @@ class PatentTxtToTabular:
                     current_entity = self.config[header]['<entity>']
                     subconfig = self.config[header]['<fields>']
                     record = {}
+                    record["id"] = str(patent_pk) + '_' + str(pk_counter)
+                    record["parent_id"] = patent_pk
+                    pk_counter += 1
                     if "<filename_field>" in self.config[header]:
                         record[self.config[header]["<filename_field>"]] = self.current_filename
 
@@ -258,6 +275,9 @@ class PatentTxtToTabular:
                         if re.match(splitter, header):
                             self.tables[current_entity].append(record)
                             record = {}
+                            record["id"] = str(patent_pk) + '_' + str(pk_counter)
+                            record["parent_id"] = patent_pk
+                            pk_counter += 1
 
         # Add to list of those entities found so far
         self.tables[current_entity].append(record)

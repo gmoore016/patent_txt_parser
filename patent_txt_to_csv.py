@@ -333,7 +333,9 @@ class PatentTxtToTabular:
             if "id" in self.fieldnames[tablename]:
                 params["pk"] = "id"
                 params["not_null"] = {"id"}
-            db[tablename].insert_all(rows, **params)
+            # For some reason we need to really limit the batch size
+            # or else you end up running into SQL variable limits somehow?
+            db[tablename].insert_all(rows, batch_size=80, **params)
 
 
 def expand_paths(path_expr):

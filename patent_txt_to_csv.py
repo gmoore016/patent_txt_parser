@@ -66,7 +66,7 @@ class PatentTxtToTabular:
         txt_doc = []
 
         # Opens lines from file
-        with open(filepath, "r") as _fh:
+        with open(filepath, "r", encoding="ISO-8859-1") as _fh:
 
             # Skip first line of header information
             next(_fh)

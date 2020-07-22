@@ -307,6 +307,34 @@ class PatentTxtToTabular:
                     writer.writeheader()
                     writer.writerows(rows)
 
+    def write_sqlitedb(self):
+        try:
+            from sqlite_utils import Database as SqliteDB
+        except ImportError:
+            self.logger.debug("sqlite_utils not available")
+            raise
+
+        db_path = (self.output_path / "db.sqlite").resolve()
+
+        if db_path.exists():
+            self.logger.warning(
+                colored(
+                    "Sqlite database %s exists; records will be appended.", "yellow"
+                ),
+                dbpath,
+            )
+
+        db = SqliteDB(db_path)
+        self.logger.info(
+            colored("Writing records to %s ...", "green"), db_path,
+        )
+        for tablename, rows in self.tables.items():
+            params = {"column_order": self.fieldnames[tablename]}
+            if "id" in self.fieldnames[tablename]:
+                params["pk"] = "id"
+                params["not_null"] = {"id"}
+            db[tablename].insert_all(rows, **params)
+
 
 def expand_paths(path_expr):
     path = Path(path_expr).expanduser()

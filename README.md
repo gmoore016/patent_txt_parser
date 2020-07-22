@@ -57,11 +57,11 @@ Frequently, a single patent will have multiple distinct entries of the same type
 First, a field can specify a "joiner." In the case of a joiner, successive fields of the same type will be concatonated into a single string, delimited with a joiner. Note when specifying a field with parameters, you must also specify `<fieldname>` explicitly. As an example, the APS file:
 ```
 CLMS
-  NUM 1
-  PAR foo
-  PAR bar
-  NUM 2
-  PAR ray
+NUM 1
+PAR foo
+PAR bar
+NUM 2
+PAR ray
 ```
 along with the config file
 ```yaml
@@ -81,11 +81,11 @@ Sometimes, the successive fields of an entry are important enough they deserve t
 Consider the APS file from above:
 ```
 CLMS
-  NUM 1
-  PAR foo
-  PAR bar
-  NUM 2
-  PAR ray
+NUM 1
+PAR foo
+PAR bar
+NUM 2
+PAR ray
 ```
 
 In this case, claim 1 is composed of `foo` and `bar`, while claim 2 is composed of `ray`. Notice that each claim is delimited by a `NUM` element. In this case, we can use `NUM` as a splitter to define the claims separately. That means this config file:

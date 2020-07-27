@@ -149,7 +149,7 @@ OREF:
         <enum_type>: other
     "PA[A-Z1-9]":
       <fieldname>: other_citation
-      <joiner>: "|#|"
+      <joiner>: "<new_record>"
 
 
 # Legal information

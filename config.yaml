@@ -70,6 +70,20 @@ REIS:
     PNO: patent_number
     ISD: issue_date
 
+
+# US related applications
+RLAP:
+  <entity>: related_document
+  <fields>:
+    COD: code
+    APN: application_number
+    APD: filing_date
+    PSC: parent_status
+    PNO: patent_number
+    ISD: issue_date
+
+
+
 CLMS:
   <entity>: claim
   <fields>:
@@ -99,11 +113,7 @@ ABST:
 
 
 
-RLAP:
-  <entity>: related_document
-  <fields>:
-    APN: relatedDocNum
-    APD: relatedDocDate
+
 
 CLAS:
   <entity>: classification

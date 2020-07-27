@@ -76,9 +76,13 @@ CLAS:
   <entity>: classification
   <fields>:
     OCL: USClassification
-    ICL: IntlClassification
+    ICL:
+      <fieldname>: IntlClassification
+      <joiner>: "|#|"
     EDF: IPCEdition
-    XCL: USPCSecondary
+    XCL:
+      <fieldname>: USPCSecondary
+      <joiner>: "|#|"
 
 UREF:
   <entity>: citation

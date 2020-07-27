@@ -246,6 +246,11 @@ class PatentTxtToTabular:
                         # and we can just save the value
                         if isinstance(subconfig[entry], str):
                             fieldname = subconfig[entry]
+                            try:
+                                assert fieldname not in record
+                            except AssertionError:
+                                print("Need joiner for field " + fieldname + " in document " + record["id"])
+                                raise
                             record[fieldname] = value
 
                         # If the value is parameterized, we need to handle

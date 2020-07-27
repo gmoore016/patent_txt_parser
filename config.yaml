@@ -51,6 +51,14 @@ ASSG:
     ITX: descriptive_text
 
 
+# Foreign priority information
+PRIR:
+  <entity>: foreign_filing
+  <fields>:
+    CNT: country
+    APD: filing_date
+    APN: application_number
+
 CLMS:
   <entity>: claim
   <fields>:
@@ -78,11 +86,7 @@ ABST:
 
 
 
-PRIR:
-  <entity>: foreign_filing
-  <fields>:
-    CNT: foreignCode
-    APD: foreignFiling
+
 
 RLAP:
   <entity>: related_document

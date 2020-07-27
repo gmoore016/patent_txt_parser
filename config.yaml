@@ -115,6 +115,9 @@ CLAS:
 UREF:
   <entity>: citation
   <fields>:
+    <constant>:
+      <fieldname>: citation_type
+      <enum_type>: us
     PNO: patent_number
     ISD: issue_date
     NAM: patentee_name
@@ -127,6 +130,9 @@ UREF:
 FREF:
   <entity>: citation
   <fields>:
+    <constant>:
+      <fieldname>: citation_type
+      <enum_type>: foreign
     PNO: patent_number
     ISD: issue_date
     CNT: country
@@ -138,6 +144,9 @@ FREF:
 OREF:
   <entity>: citation
   <fields>:
+    <constant>:
+      <fieldname>: citation_type
+      <enum_type>: other
     "PA[A-Z1-9]":
       <fieldname>: other_citation
       <joiner>: "|#|"

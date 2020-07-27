@@ -284,9 +284,26 @@ class PatentTxtToTabular:
 
                             # If we've seen one before, add the new one with a delimiter
                             if fieldname in record:
-                                record[fieldname] = record[fieldname] \
-                                                    + subconfig[entry]["<joiner>"] \
-                                                    + value
+                                # If new occurances get their own row
+                                if subconfig[entry]["<joiner>"] == "<new_record>":
+
+                                    # Write the previous record to the file
+                                    self.tables[current_entity].append(record)
+
+                                    # Generate a new record with keys
+                                    record = self.new_record(subconfig)
+                                    record["id"] = str(patent_pk) + '_' + str(pk_counter)
+                                    record["parent_id"] = str(patent_pk)
+                                    pk_counter += 1
+
+                                    # Record the new value
+                                    record[fieldname] = value
+
+                                # If we're using a text joiner
+                                else:
+                                    record[fieldname] = record[fieldname] \
+                                                        + subconfig[entry]["<joiner>"] \
+                                                        + value
                             # Otherwise, just save the value for now
                             else:
                                 record[fieldname] = value

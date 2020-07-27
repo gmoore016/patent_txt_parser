@@ -220,6 +220,15 @@ DRWD:
       <joiner>: "\n"
 
 
+# Detailed description
+DETD:
+  <entity>: detailed_description
+  <fields>:
+    "PA[0-9A-Z]":
+      <fieldname>: background
+      <joiner>: "\n"
+
+
 CLMS:
   <entity>: claim
   <fields>:

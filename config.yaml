@@ -143,6 +143,26 @@ OREF:
       <joiner>: "|#|"
 
 
+# Legal information
+LREF:
+  <entity>: legal
+  <fields>:
+    FRM: law_firm
+    FR2:
+      <fieldname>: principal_attorney
+      <joiner>: "|#|"
+    AAT: associate_attorney
+    AGT: agent
+    ATT: attorney
+    REG: registration_number
+    NAM: legal_representative
+    STR: representative_address
+    CTY: representative_city
+    STA: representative_state
+    CNT: representative_country
+    ZIP: representative_zip
+
+
 
 CLMS:
   <entity>: claim

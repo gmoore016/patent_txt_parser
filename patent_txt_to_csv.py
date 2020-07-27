@@ -202,11 +202,7 @@ class PatentTxtToTabular:
         splitter = None
         patent_pk = None
         pk_counter = 0
-        record = {}
-
-        # Set up enum_types now
-        if "<constant>" in subconfig:
-            record[subconfig["<constant>"]["<fieldname>"]] = subconfig["<constant>"]["<enum_type>"]
+        record = self.new_record(subconfig)
 
         if "<filename_field>" in self.config[header]:
             record[self.config[header]["<filename_field>"]] = self.current_filename
@@ -241,7 +237,9 @@ class PatentTxtToTabular:
                     self.tables[current_entity].append(record)
                     current_entity = self.config[header]['<entity>']
                     subconfig = self.config[header]['<fields>']
-                    record = {}
+
+                    record = self.new_record(subconfig)
+
                     record["id"] = str(patent_pk) + '_' + str(pk_counter)
                     record["parent_id"] = patent_pk
                     pk_counter += 1

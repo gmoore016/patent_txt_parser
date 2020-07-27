@@ -83,6 +83,36 @@ RLAP:
     ISD: issue_date
 
 
+CLAS:
+  <entity>: classification
+  <fields>:
+    OCL: us
+    XCL:
+      <fieldname>: us_secondary
+      <joiner>: "|#|"
+    UCL:
+      <fieldname>: unofficial
+      <joiner>: "|#|"
+    DCL:
+      <fieldname>: digest
+      <joiner>: "|#|"
+    EDF: international_edition
+    ICL:
+      <fieldname>: international_classification
+      <joiner>: "|#|"
+    FSI:
+      <fieldname>: international_classification
+      <joiner>: "|#|"
+    FSC:
+      <fieldname>: field_of_search
+      <joiner>: "|#|"
+    FSS:
+      <fieldname>: field_of_search_subclass
+      <joiner>: "|#|"
+
+
+
+
 
 CLMS:
   <entity>: claim
@@ -115,17 +145,7 @@ ABST:
 
 
 
-CLAS:
-  <entity>: classification
-  <fields>:
-    OCL: USClassification
-    ICL:
-      <fieldname>: IntlClassification
-      <joiner>: "|#|"
-    EDF: IPCEdition
-    XCL:
-      <fieldname>: USPCSecondary
-      <joiner>: "|#|"
+
 
 UREF:
   <entity>: citation

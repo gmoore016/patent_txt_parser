@@ -170,6 +170,27 @@ class PatentTxtToTabular:
 
         return fieldnames
 
+    def new_record(self, subconfig):
+        # Generate a new record
+        record = {}
+
+        # If there is at least one constant field
+        if "<constant>" in subconfig:
+
+            # Add each constant field to the record
+            for variable in subconfig["<constant>"]:
+                fieldname = variable["<fieldname>"]
+                value = variable["<enum_type>"]
+                record[fieldname] = value
+
+        # If we want to save the filename, save it now
+        if "<filename_field>" in subconfig:
+            fieldname = subconfig["<filename_field>"]
+            record[fieldname] = self.current_filename
+
+        return record
+
+
     def process_doc(self, txt_doc):
         """The method for actually reading the contents of the CSV files"""
         # Initialize with PATN since we know first section of document will

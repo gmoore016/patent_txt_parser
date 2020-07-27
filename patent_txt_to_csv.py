@@ -190,7 +190,6 @@ class PatentTxtToTabular:
 
         return record
 
-
     def process_doc(self, txt_doc):
         """The method for actually reading the contents of the CSV files"""
         # Initialize with PATN since we know first section of document will
@@ -204,8 +203,8 @@ class PatentTxtToTabular:
         pk_counter = 0
         record = self.new_record(subconfig)
 
-        if "<primary_key>" in subconfig:
-            pk_head = subconfig["<primary_key>"]
+        if "<primary_key>" in self.config[header]:
+            pk_head = self.config[header]["<primary_key>"]
 
         # Go through each line of the file
         # Need to skip first two lines since they contain metadata

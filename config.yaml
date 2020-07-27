@@ -1,8 +1,8 @@
 # Patent Information
 PATN:
   <entity>: patent
+  <primary_key>: WKU
   <fields>:
-    <primary_key>: WKU
     <filename_field>: source_file
     WKU: document_number
     SRC: series_code

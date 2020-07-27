@@ -59,6 +59,17 @@ PRIR:
     APD: filing_date
     APN: application_number
 
+
+# Reissue information
+REIS:
+  <entity>: reissue
+  <fields>:
+    COD: code
+    APN: application_number
+    APD: filing_date
+    PNO: patent_number
+    ISD: issue_date
+
 CLMS:
   <entity>: claim
   <fields>:

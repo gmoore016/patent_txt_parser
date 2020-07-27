@@ -170,6 +170,26 @@ class PatentTxtToTabular:
 
         return fieldnames
 
+    def new_record(self, subconfig):
+        # Generate a new record
+        record = {}
+
+        # If there is at least one constant field
+        if "<constant>" in subconfig:
+
+            # Add each constant field to the record
+            for variable in subconfig["<constant>"]:
+                fieldname = variable["<fieldname>"]
+                value = variable["<enum_type>"]
+                record[fieldname] = value
+
+        # If we want to save the filename, save it now
+        if "<filename_field>" in subconfig:
+            fieldname = subconfig["<filename_field>"]
+            record[fieldname] = self.current_filename
+
+        return record
+
     def process_doc(self, txt_doc):
         """The method for actually reading the contents of the CSV files"""
         # Initialize with PATN since we know first section of document will
@@ -181,14 +201,7 @@ class PatentTxtToTabular:
         splitter = None
         patent_pk = None
         pk_counter = 0
-        record = {}
-
-        # Set up enum_types now
-        if "<constant>" in subconfig:
-            record[subconfig["<constant>"]["<fieldname>"]] = subconfig["<constant>"]["<enum_type>"]
-
-        if "<filename_field>" in self.config[header]:
-            record[self.config[header]["<filename_field>"]] = self.current_filename
+        record = self.new_record(subconfig)
 
         if "<primary_key>" in self.config[header]:
             pk_head = self.config[header]["<primary_key>"]
@@ -220,14 +233,12 @@ class PatentTxtToTabular:
                     self.tables[current_entity].append(record)
                     current_entity = self.config[header]['<entity>']
                     subconfig = self.config[header]['<fields>']
-                    record = {}
+
+                    record = self.new_record(subconfig)
+
                     record["id"] = str(patent_pk) + '_' + str(pk_counter)
                     record["parent_id"] = patent_pk
                     pk_counter += 1
-                    if "<filename_field>" in self.config[header]:
-                        record[self.config[header]["<filename_field>"]] = self.current_filename
-                    if "<constant>" in subconfig:
-                        record[subconfig["<constant>"]["<fieldname>"]] = subconfig["<constant>"]["<enum_type>"]
 
                 # If we don't care about the new section, just say it has no relevant
                 # fields and continue. Don't create a new record or write yet, since that
@@ -286,12 +297,12 @@ class PatentTxtToTabular:
                     elif splitter:
                         if re.match(splitter, header):
                             self.tables[current_entity].append(record)
-                            record = {}
+
+                            record = self.new_record(subconfig)
+
                             record["id"] = str(patent_pk) + '_' + str(pk_counter)
                             record["parent_id"] = patent_pk
                             pk_counter += 1
-                            if "<constant>" in subconfig:
-                                record[subconfig["<constant>"]["<fieldname>"]] = subconfig["<constant>"]["<enum_type>"]
 
         # Add to list of those entities found so far
         self.tables[current_entity].append(record)

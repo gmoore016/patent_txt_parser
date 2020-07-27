@@ -204,11 +204,8 @@ class PatentTxtToTabular:
         pk_counter = 0
         record = self.new_record(subconfig)
 
-        if "<filename_field>" in self.config[header]:
-            record[self.config[header]["<filename_field>"]] = self.current_filename
-
-        if "<primary_key>" in self.config[header]:
-            pk_head = self.config[header]["<primary_key>"]
+        if "<primary_key>" in subconfig:
+            pk_head = subconfig["<primary_key>"]
 
         # Go through each line of the file
         # Need to skip first two lines since they contain metadata
@@ -243,10 +240,6 @@ class PatentTxtToTabular:
                     record["id"] = str(patent_pk) + '_' + str(pk_counter)
                     record["parent_id"] = patent_pk
                     pk_counter += 1
-                    if "<filename_field>" in self.config[header]:
-                        record[self.config[header]["<filename_field>"]] = self.current_filename
-                    if "<constant>" in subconfig:
-                        record[subconfig["<constant>"]["<fieldname>"]] = subconfig["<constant>"]["<enum_type>"]
 
                 # If we don't care about the new section, just say it has no relevant
                 # fields and continue. Don't create a new record or write yet, since that
@@ -305,12 +298,12 @@ class PatentTxtToTabular:
                     elif splitter:
                         if re.match(splitter, header):
                             self.tables[current_entity].append(record)
-                            record = {}
+
+                            record = self.new_record(subconfig)
+
                             record["id"] = str(patent_pk) + '_' + str(pk_counter)
                             record["parent_id"] = patent_pk
                             pk_counter += 1
-                            if "<constant>" in subconfig:
-                                record[subconfig["<constant>"]["<fieldname>"]] = subconfig["<constant>"]["<enum_type>"]
 
         # Add to list of those entities found so far
         self.tables[current_entity].append(record)

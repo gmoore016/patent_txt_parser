@@ -192,6 +192,16 @@ GOVT:
       <fieldname>: interest_statement
       <joiner>: "\n"
 
+
+# Parent case
+PARN:
+  <entity>: parent_case_text
+  <fields>:
+    "PA[0-9A-Z]":
+      <fieldname>: parent_statement
+      <joiner>: "\n"
+
+
 CLMS:
   <entity>: claim
   <fields>:

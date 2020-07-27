@@ -229,6 +229,7 @@ DETD:
       <joiner>: "\n"
 
 
+# Claim information
 CLMS:
   <entity>: claim
   <fields>:
@@ -238,6 +239,8 @@ CLMS:
       <joiner>: "\n"
       <splitter>: "NUM"
 
+
+# Design claim
 DCLM:
   <entity>: claim
   <fields>:

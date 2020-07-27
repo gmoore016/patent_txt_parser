@@ -204,7 +204,7 @@ PARN:
 
 # Brief summary
 BSUM:
-  <entity>: background
+  <entity>: brief_summary
   <fields>:
     "PA[0-9A-Z]":
       <fieldname>: background

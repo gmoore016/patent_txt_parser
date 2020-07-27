@@ -38,6 +38,19 @@ INVT:
     ITX: descriptive_text
 
 
+# Assignee information
+ASSG:
+  <entity>: assignee
+  <fields>:
+    NAM: name
+    CTY: city
+    STA: state
+    CNT: country
+    ZIP: zip_code
+    COD: type_code
+    ITX: descriptive_text
+
+
 CLMS:
   <entity>: claim
   <fields>:
@@ -63,11 +76,7 @@ ABST:
 
 
 
-ASSG:
-  <entity>: assignee
-  <fields>:
-    NAM: assigneeOrgname
-    COD: assigneeRole
+
 
 PRIR:
   <entity>: foreign_filing

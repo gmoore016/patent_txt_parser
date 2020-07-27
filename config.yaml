@@ -211,6 +211,15 @@ BSUM:
       <joiner>: "\n"
 
 
+# Drawing description
+DRWD:
+  <entity>: drawing
+  <fields>:
+    "PA[0-9A-Z]":
+      <fieldname>: background
+      <joiner>: "\n"
+
+
 CLMS:
   <entity>: claim
   <fields>:

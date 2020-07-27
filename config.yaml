@@ -175,6 +175,22 @@ PCTA:
     PCD: publication_date
 
 
+# Abstract
+ABST:
+  <entity>: abstract
+  <fields>:
+    "PA[A-Z1-9]":
+      <fieldname>: abs_text
+      <joiner>: "\n"
+
+
+# Government interest
+GOVT:
+  <entity>: government_interest
+  <fields>:
+    "PA[0-9A-Z]":
+      <fieldname>: interest_statement
+      <joiner>: "\n"
 
 CLMS:
   <entity>: claim
@@ -192,12 +208,7 @@ DCLM:
       <fieldname>: claim_text
       <joiner>: "\n"
 
-ABST:
-  <entity>: abstract
-  <fields>:
-    "PA[A-Z1-9]":
-      <fieldname>: abs_text
-      <joiner>: "\n"
+
 
 
 

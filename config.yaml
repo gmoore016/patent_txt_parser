@@ -111,6 +111,36 @@ CLAS:
       <joiner>: "|#|"
 
 
+# References to US patents
+UREF:
+  <entity>: citation
+  <fields>:
+    PNO: patent_number
+    ISD: issue_date
+    NAM: patentee_name
+    OCL: original_us_classification
+    XCL: us_cross_reference
+    UCL: us_unofficial_reference
+
+
+# References to foreign patents
+FREF:
+  <entity>: citation
+  <fields>:
+    PNO: patent_number
+    ISD: issue_date
+    CNT: country
+    OCL: original_us_classification
+    ICL: international_classification
+
+
+# Reference to other documents
+OREF:
+  <entity>: citation
+  <fields>:
+    "PA[A-Z1-9]":
+      <fieldname>: other_citation
+      <joiner>: "|#|"
 
 
 
@@ -147,25 +177,3 @@ ABST:
 
 
 
-UREF:
-  <entity>: citation
-  <fields>:
-    PNO: citDocnum
-    NAM: citName
-    ISD: citDate
-    OCL: citClassMain
-
-FREF:
-  <entity>: citation
-  <fields>:
-    CNT: citCountry
-    PNO: citDocnum
-    ISD: citDate
-    OCL: citClassMain
-
-OREF:
-  <entity>: citation
-  <fields>:
-    "PA[A-Z1-9]":
-      <fieldname>: citOtherCit
-      <joiner>: "|#|"

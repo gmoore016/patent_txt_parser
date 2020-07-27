@@ -163,6 +163,18 @@ LREF:
     ZIP: representative_zip
 
 
+# Patent Cooperation Treaty information
+PCTA:
+  <entity>: patent_cooperation_treaty
+  <fields>:
+    PCN: pct_number
+    PD1: pct_371_date
+    PD2: pct_102e_date
+    PD3: filing_date
+    PCP: publication_number
+    PCD: publication_date
+
+
 
 CLMS:
   <entity>: claim

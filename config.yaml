@@ -3,16 +3,25 @@ PATN:
   <primary_key>: WKU
   <filename_field>: source_file
   <fields>:
-    WKU: docNumber
-    APN: appNum
-    APT: filingType
-    SRC: seriesCode
-    TTL: Title
-    NCL: numClaims
-    EXP: examiner1
-    EXA: examiner2
-    APD: filingDate
-    ISD: docDate
+    WKU: document_number
+    SRC: series_code
+    APN: application_number
+    APT: application_type
+    PBL: publication_level
+    ART: art_unit
+    APD: filing_date
+    TTL: title
+    ISD: issue_date
+    NCL: number_of_claims
+    ECL: exemplary_claim_number
+    EXA: assistant_examiner
+    EXP: primary_examiner
+    NDR: number_of_drawing_sheets
+    NFG: number_of_figures
+    DCD: disclaimer_date
+    NPS: number_of_specification_pages
+    TRM: term_of_patent
+
 
 CLMS:
   <entity>: claim

@@ -1,3 +1,4 @@
+# Patent Information
 PATN:
   <entity>: patent
   <primary_key>: WKU
@@ -23,6 +24,20 @@ PATN:
     TRM: term_of_patent
 
 
+# Inventor information
+INVT:
+  <entity>: inventor
+  <fields>:
+    NAM: name
+    STR: street_address
+    CTY: city
+    STA: state
+    CNT: country
+    ZIP: zip_code
+    R47: rule_47
+    ITX: descriptive_text
+
+
 CLMS:
   <entity>: claim
   <fields>:
@@ -46,13 +61,7 @@ ABST:
       <fieldname>: abs_text
       <joiner>: "\n"
 
-INVT:
-  <entity>: inventor
-  <fields>:
-    NAM: applicantOrgname
-    CTY: applicantResCity
-    STA: applicantResState
-    CNT: applicantResCountry
+
 
 ASSG:
   <entity>: assignee

@@ -130,6 +130,10 @@ class PatentTxtToTabular:
                 _fieldnames.append(config["<fieldname>"])
                 return
 
+            if "<constant>" in config:
+                _fieldnames.append(config["<constant>"]["<fieldname>"])
+                return
+
             # If there's a new entity, we save the ids and recursively
             # fetch the fieldnames in the substructure
             if "<entity>" in config:
@@ -284,15 +288,43 @@ class PatentTxtToTabular:
 
                             # If we've seen one before, add the new one with a delimiter
                             if fieldname in record:
-                                record[fieldname] = record[fieldname] \
-                                                    + subconfig[entry]["<joiner>"] \
-                                                    + value
+                                # If new occurances get their own row
+                                if subconfig[entry]["<joiner>"] == "<new_record>":
+
+                                    # Write the previous record to the file
+                                    self.tables[current_entity].append(record)
+
+                                    # Generate a new record with keys
+                                    record = self.new_record(subconfig)
+                                    record["id"] = str(patent_pk) + '_' + str(pk_counter)
+                                    record["parent_id"] = str(patent_pk)
+                                    pk_counter += 1
+
+                                    # Record the new value
+                                    record[fieldname] = value
+
+                                # If we're using a text joiner
+                                else:
+                                    record[fieldname] = record[fieldname] \
+                                                        + subconfig[entry]["<joiner>"] \
+                                                        + value
                             # Otherwise, just save the value for now
                             else:
                                 record[fieldname] = value
 
+                        elif "<constant>" in subconfig[entry]:
+                            # NOTE: MAD HACKY CODE HERE
+                            # This should reasonably have a line
+                            # fieldname = subconfig[entry]["<constant>"]["<fieldname>"]
+                            # and then just set the record for fieldname
+                            # However, the way we continue appending in the case of headerless
+                            # rows depends on maintaining the previous fieldname, which we don't
+                            # want to do to constant fields. Therefore, we don't use fieldname here
+                            value = subconfig[entry]["<constant>"]["<enum_type>"]
+                            record[subconfig[entry]["<constant>"]["<fieldname>"]] = value
+
                         else:
-                            print("ERROR: Fields must be string or contain <fieldname>")
+                            print("ERROR: Fields must be string or contain <fieldname> or <constant>")
                             raise LookupError
                     elif splitter:
                         if re.match(splitter, header):

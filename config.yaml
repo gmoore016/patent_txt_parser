@@ -86,29 +86,49 @@ RLAP:
 CLAS:
   <entity>: classification
   <fields>:
-    OCL: us
+    # Note: to get proper alignment, this *MUST* come before the codes; otherwise all the
+    # classification codes will be off by one from their systems
+    ".+":
+      <fieldname>: classification
+      <joiner>: "<new_record>"
+
+
+    OCL:
+      <constant>:
+        <fieldname>: system
+        <enum_type>: us
     XCL:
-      <fieldname>: us_secondary
-      <joiner>: "|#|"
+      <constant>:
+        <fieldname>: system
+        <enum_type>: us_cross
     UCL:
-      <fieldname>: unofficial
-      <joiner>: "|#|"
+      <constant>:
+        <fieldname>: system
+        <enum_type>: unofficial
     DCL:
-      <fieldname>: digest
-      <joiner>: "|#|"
-    EDF: international_edition
+      <constant>:
+        <fieldname>: system
+        <enum_type>: digest
+    EDF:
+      <constant>:
+        <fieldname>: system
+        <enum_type>: international_edition
     ICL:
-      <fieldname>: international_classification
-      <joiner>: "|#|"
+      <constant>:
+        <fieldname>: system
+        <enum_type>: international_classification
     FSI:
-      <fieldname>: international_classification
-      <joiner>: "|#|"
+      <constant>:
+        <fieldname>: system
+        <enum_type>: international_classification
     FSC:
-      <fieldname>: field_of_search
-      <joiner>: "|#|"
+      <constant>:
+        <fieldname>: system
+        <enum_type>: field_of_search_class
     FSS:
-      <fieldname>: field_of_search_subclass
-      <joiner>: "|#|"
+      <constant>:
+        <fieldname>: system
+        <enum_type>: field_of_search_subclass
 
 
 # References to US patents
@@ -149,7 +169,7 @@ OREF:
         <enum_type>: other
     "PA[A-Z1-9]":
       <fieldname>: other_citation
-      <joiner>: "|#|"
+      <joiner>: "<new_record>"
 
 
 # Legal information

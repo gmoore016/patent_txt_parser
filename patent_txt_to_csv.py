@@ -239,12 +239,16 @@ class PatentTxtToTabular:
                     self.tables[current_entity].append(record)
                     current_entity = self.config[header]['<entity>']
                     subconfig = self.config[header]['<fields>']
-
                     record = self.new_record(subconfig)
 
                     record["id"] = str(patent_pk) + '_' + str(pk_counter)
                     record["parent_id"] = patent_pk
                     pk_counter += 1
+
+                    # Since headers don't cross entities, any starting blank lines
+                    # shouldn't be appended to the previous record
+                    last_header = ""
+
 
                 # If we don't care about the new section, just say it has no relevant
                 # fields and continue. Don't create a new record or write yet, since that
@@ -257,7 +261,6 @@ class PatentTxtToTabular:
             elif not header and any(re.match(entry, last_header) for entry in subconfig):
                 # Fieldname must have been previously defined if last_header in subconfig
                 record[fieldname] = record[fieldname] + ' ' + line[4:].strip()
-
             else:
                 for entry in subconfig:
                     # If the config file entry matches the file header,

@@ -22,9 +22,11 @@ except ImportError:
 
 
 class PatentTxtToTabular:
-    def __init__(self, txt_input, config, output_path, output_type, logger, clean, **kwargs,):
+    def __init__(self, txt_input, config, output_path, output_type, logger, clean, joiner, **kwargs,):
 
         self.logger = logger
+
+        self.default_joiner = joiner
 
         self.txt_files = []
         for input_path in txt_input:
@@ -268,12 +270,14 @@ class PatentTxtToTabular:
                         # and we can just save the value
                         if isinstance(subconfig[entry], str):
                             fieldname = subconfig[entry]
-                            try:
-                                assert fieldname not in record
-                            except AssertionError:
-                                print("Need joiner for field " + fieldname + " in document " + record["id"])
-                                raise
-                            record[fieldname] = value
+                            if fieldname in record:
+                                self.logger.debug(
+                                    colored("No joiner specified for %s, using default.", "yellow"),
+                                    fieldname
+                                )
+                                record[fieldname] = record[fieldname] + self.default_joiner + value
+                            else:
+                                record[fieldname] = value
 
                         # If the value is parameterized, we need to handle
                         # many-to-one issues
@@ -288,8 +292,14 @@ class PatentTxtToTabular:
 
                             # If we've seen one before, add the new one with a delimiter
                             if fieldname in record:
+                                # Pulls the joiner if there is one, otherwise uses default
+                                if "<joiner>" in subconfig[entry]:
+                                    joiner = subconfig[entry]["<joiner>"]
+                                else:
+                                    joiner = self.default_joiner
+
                                 # If new occurances get their own row
-                                if subconfig[entry]["<joiner>"] == "<new_record>":
+                                if joiner == "<new_record>":
 
                                     # Write the previous record to the file
                                     self.tables[current_entity].append(record)
@@ -305,9 +315,7 @@ class PatentTxtToTabular:
 
                                 # If we're using a text joiner
                                 else:
-                                    record[fieldname] = record[fieldname] \
-                                                        + subconfig[entry]["<joiner>"] \
-                                                        + value
+                                    record[fieldname] = record[fieldname] + joiner + value
                             # Otherwise, just save the value for now
                             else:
                                 record[fieldname] = value
@@ -412,6 +420,10 @@ def main():
 
     arg_parser.add_argument(
         '-q', "--quiet", action="store_true", default=False, help="quiet operation"
+    )
+
+    arg_parser.add_argument(
+        '-j', "--joiner", action="store", default="|#|", help="Default joiner for many-to-one fields"
     )
 
     arg_parser.add_argument(

@@ -282,8 +282,13 @@ class PatentTxtToTabular:
             # same script as the previous line. Just keep appending.
             elif not header and any(re.match(entry, last_header) for entry in subconfig):
                 # Fieldname must have been previously defined if last_header in subconfig
-                record[fieldname] = record[fieldname] + ' ' + line[4:].strip()
+                # Append it for each field where that header was relevant
+                for fieldname in fieldnames:
+                        record[fieldname] = record[fieldname] + ' ' + line[4:].strip()
             else:
+                # List for holding names if data goes in multiple fields
+                fieldnames = []
+
                 for entry in subconfig:
                     # If the config file entry matches the file header,
                     # pull the fieldname from the YAML file
@@ -295,6 +300,7 @@ class PatentTxtToTabular:
                         # and we can just save the value
                         if isinstance(subconfig[entry], str):
                             fieldname = subconfig[entry]
+                            fieldnames.append(fieldname)
                             if fieldname in record:
                                 self.logger.debug(
                                     colored("No joiner specified for %s, using default.", "yellow"),
@@ -309,7 +315,8 @@ class PatentTxtToTabular:
                         elif "<fieldname>" in subconfig[entry]:
                             # First, save the fieldname
                             fieldname = subconfig[entry]["<fieldname>"]
-
+                            fieldnames.append(fieldname)
+                            
                             if "<splitter>" in subconfig[entry]:
                                 splitter = subconfig[entry]["<splitter>"]
                             else:

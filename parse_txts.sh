@@ -3,9 +3,9 @@
 #SBATCH --output=txt_parse.out
 #
 #SBATCH --partition=hlwill
-#SBATCH --time=3-00:00:00
+#SBATCH --time=7-00:00:00
 #
-#SBATCH --mem=50G
+#SBATCH --mem=0
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=20
 #
@@ -23,7 +23,7 @@ for i in /oak/stanford/groups/hlwill/raw/USPTO_grants/data/pftaps*.zip; do unzip
 wait
 
 #Parse the files
-python3 patent_txt_to_csv.py -i $SCRATCH/txt_parse_temp -o output -c config.yaml --clean -r
+python3 patent_txt_to_csv.py -i $SCRATCH/txt_parse_temp -o output --output-type sqlite -c config.yaml --clean -r
 
 #Remove temp files
 rm $SCRATCH/txt_parse_temp -r

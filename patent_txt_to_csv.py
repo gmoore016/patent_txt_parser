@@ -4,6 +4,7 @@ import logging   # Handles logging output
 import yaml      # Takes input files
 import re        # Regular expressions
 import shutil    # Handles system paths
+import sqlite3   # Handles sqlite
 
 from collections import defaultdict   # Dictionaries that provide default values
 from pathlib import Path              # Feature-rich path objects
@@ -58,6 +59,27 @@ class PatentTxtToTabular:
 
         # Tracks primary keys and value tables
         self.init_cache_vars()
+
+        if self.output_type == "sqlite":
+            try:
+                from sqlite_utils import Database as SqliteDB
+                self.db_path = (self.output_path / "db.sqlite").resolve()
+                if self.db_path.exists():
+                    self.logger.warning(
+                        colored(
+                            "Sqlite database %s exists; records will be appended.",
+                            "yellow",
+                        ),
+                        self.db_path,
+                    )
+                db_conn = sqlite3.connect(str(self.db_path), isolation_level=None)
+                db_conn.execute("pragma syncronous=off;")
+                db_conn.execute("pragma journal_mode=memory;")
+                self.db = SqliteDB(db_conn)
+
+            except ImportError:
+                logger.debut("sqlite_utils (pip3 install sqlite-utils) not available")
+                raise
 
     def init_cache_vars(self):
         self.tables = defaultdict(list)
@@ -376,34 +398,23 @@ class PatentTxtToTabular:
                     writer.writerows(rows)
 
     def write_sqlitedb(self):
-        try:
-            from sqlite_utils import Database as SqliteDB
-        except ImportError:
-            self.logger.debug("sqlite_utils not available")
-            raise
-
-        db_path = (self.output_path / "db.sqlite").resolve()
-
-        if db_path.exists():
-            self.logger.warning(
-                colored(
-                    "Sqlite database %s exists; records will be appended.", "yellow"
-                ),
-                dbpath,
-            )
-
-        db = SqliteDB(db_path)
         self.logger.info(
-            colored("Writing records to %s ...", "green"), db_path,
+            colored("Writing records to %s ...", "green"), self.db_path,
         )
+        self.db.conn.execute("begin exclusive;")
         for tablename, rows in self.tables.items():
-            params = {"column_order": self.fieldnames[tablename]}
+            params = {"column_order": self.fieldnames[tablename], "alter":True}
             if "id" in self.fieldnames[tablename]:
                 params["pk"] = "id"
                 params["not_null"] = {"id"}
+            self.logger.debug(
+                colored("Writing %d records to `%s`...", "magenta"),
+                len(rows),
+                tablename,
+            )
             # For some reason we need to really limit the batch size
             # or else you end up running into SQL variable limits somehow?
-            db[tablename].insert_all(rows, batch_size=80, **params)
+            self.db[tablename].insert_all(rows, batch_size=20, **params)
 
 
 def expand_paths(path_expr):

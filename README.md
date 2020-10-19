@@ -99,3 +99,34 @@ CLMS:
       <splitter>: "NUM"
 ```
 will split the above file into two rows, `foo|#|bar` and `ray`, as desired. 
+
+## Check Digits
+
+For reasons that are unclear to us, the USPTO felt as though each patent and application number in their TXT data required a "check digit." The USPTO documentation for this is as follows:
+```
+Check Digit Modulus 11
+
+A check digit is established for each patent number and 
+application serial number that appears on the full-text file. 
+The patent number check digit will appear in the 9th position of 
+each record following the patent number. The check digit for the 
+application serial number will appear in the 8th position of the 
+Selected Front Page Information element. The check digit is 
+derived in the following manner:
+
+Multiply the right most numeric position of the field 
+by 2, the next numeric position to the left by 3, the 
+next by 4, the next by 5, etc. 
+
+The products are added and divided by 11. The resulting 
+remainder is subtracted from 11, which produces the check 
+digit. The exception will be if the result is 11, the 
+check digit will be 0, if the result is 10, the check 
+digit will appear as an ampersand (&).
+```
+
+What is the purpose of this check digit? Unclear--the above is the complete discussion of the check digit in the documentation. The USPTO itself seems somewhat unsure of its logic, as they drop the check digits once they shift over to XML.
+
+Unfortunately, the patent number is never present without the check digit, so if we're pulling the raw data from the APS files, we have no choice but to pull the check digit. However, in the interest of keeping the data "pure," we don't strip the check digit ourselves. 
+
+What does this mean for using the data? For any patents 1976-2001, the first step of any analysis should probably be dropping the last character of all the patent and application numbers. 

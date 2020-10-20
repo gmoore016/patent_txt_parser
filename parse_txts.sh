@@ -12,18 +12,22 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=gsmoore@stanford.edu
 
-#Empty the temp dir
+# Empty the temp dir
 rm $SCRATCH/txt_parse_temp -r
 mkdir $SCRATCH/txt_parse_temp
 
-#Unzip the TXT files to parse
+# Empty the output directory
+rm output -r
+mkdir output
+
+# Unzip the TXT files to parse
 for i in /oak/stanford/groups/hlwill/raw/USPTO_grants/data/pftaps*.zip; do unzip "$i" -d $SCRATCH/txt_parse_temp & done
 
 # Wait until all the files are unzipped before beginning parsing
 wait
 
-#Parse the files
+# Parse the files
 python3 patent_txt_to_csv.py -i $SCRATCH/txt_parse_temp -o output --output-type sqlite -c config.yaml --clean -r
 
-#Remove temp files
+# Remove temp files
 rm $SCRATCH/txt_parse_temp -r

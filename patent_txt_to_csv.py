@@ -409,7 +409,40 @@ class PatentTxtToTabular:
             colored("Writing records to %s ...", "green"), self.db_path,
         )
         self.db.conn.execute("begin exclusive;")
+
+        # Do the patent table first to check for duplicates
+        duplicates = set()
+        tablename = "patent"
+        rows = self.tables[tablename]
+        params = {"column_order": self.fieldnames[tablename], "alter":True}
+        if "id" in self.fieldnames[tablename]:
+            params["pk"] = "id"
+            params["not_null"] = {"id"}
+        for row in rows:
+            try:
+                self.db[tablename].insert(row, **params)
+            # If there's a duplicate entry, flag and check it
+            except sqlite3.IntegrityError:
+                # Get the offending ID number
+                duplicate_id = row["id"]
+
+                # Add it to the set of IDs to check
+                duplicates.add(duplicate_id)
+
+                # Pull existing row and assert that all elements are identical
+                for existing_row in self.db[tablename].rows_where("id == ?", [duplicate_id]):
+                    for element in existing_row:
+                        if element == "source_file":
+                            continue
+                        # Avoid Nones
+                        if existing_row[element]:
+                            assert existing_row[element] == row[element]
+
         for tablename, rows in self.tables.items():
+            # We did this table earlier
+            if tablename == "patent":
+                continue
+
             params = {"column_order": self.fieldnames[tablename], "alter":True}
             if "id" in self.fieldnames[tablename]:
                 params["pk"] = "id"
@@ -419,9 +452,28 @@ class PatentTxtToTabular:
                 len(rows),
                 tablename,
             )
-            # For some reason we need to really limit the batch size
-            # or else you end up running into SQL variable limits somehow?
-            self.db[tablename].insert_all(rows, batch_size=20, **params)
+
+            for row in rows:
+                # If the patent isn't a duplicate, just insert it
+                if row["parent_id"] not in duplicates:
+                    self.db[tablename].insert(row, **params)
+
+                # If the patent is a duplicate, ensure all the fields we have for it match
+                else:
+                    for existing_row in self.db[tablename].rows_where("id == ?", [row["id"]]):
+                        print(row)
+                        print(existing_row)
+                        for element in existing_row:
+                            if element == "source_file":
+                                continue
+                            # Avoid Nones
+                            if existing_row[element]:
+                                assert existing_row[element] == row[element]
+                        self.logger.debug(
+                            colored("Patent %s has a perfect duplicate in table %s!", "yellow"),
+                            row["parent_id"],
+                            tablename,
+                        )
 
 
 def expand_paths(path_expr):

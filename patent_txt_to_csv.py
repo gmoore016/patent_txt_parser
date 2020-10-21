@@ -507,6 +507,8 @@ def main():
     convertor = PatentTxtToTabular(**vars(args), logger=logger)
     convertor.convert()
 
+    print("Parsing complete!")
+
 
 if __name__ == "__main__":
     main()

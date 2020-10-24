@@ -1,17 +1,17 @@
 import argparse  # Takes command line arguments
-import csv       # Handles CSV output
-import logging   # Handles logging output
-import yaml      # Takes input files
-import re        # Regular expressions
-import shutil    # Handles system paths
-import sqlite3   # Handles sqlite
+import csv  # Handles CSV output
+import logging  # Handles logging output
+import yaml  # Takes input files
+import re  # Regular expressions
+import shutil  # Handles system paths
+import sqlite3  # Handles sqlite
 
-from collections import defaultdict   # Dictionaries that provide default values
-from pathlib import Path              # Feature-rich path objects
-from pprint import pformat            # Prints data in a nice way
+from collections import defaultdict  # Dictionaries that provide default values
+from pathlib import Path  # Feature-rich path objects
+from pprint import pformat  # Prints data in a nice way
 
 try:
-    from termcolor import colored         # Allows colored terminal output
+    from termcolor import colored  # Allows colored terminal output
 except ImportError:
     logging.debug("termcolor not available")
 
@@ -23,7 +23,7 @@ except ImportError:
 
 
 class PatentTxtToTabular:
-    def __init__(self, txt_input, config, output_path, output_type, logger, clean, joiner, **kwargs,):
+    def __init__(self, txt_input, config, output_path, output_type, logger, clean, joiner, **kwargs, ):
 
         self.logger = logger
 
@@ -112,7 +112,7 @@ class PatentTxtToTabular:
 
     def convert(self):
         if not self.txt_files:
-            self.logger.warning(colored("No input files to prcoess!", "red",))
+            self.logger.warning(colored("No input files to prcoess!", "red", ))
 
         for input_file in self.txt_files:
 
@@ -284,7 +284,7 @@ class PatentTxtToTabular:
                 # Fieldname must have been previously defined if last_header in subconfig
                 # Append it for each field where that header was relevant
                 for fieldname in fieldnames:
-                        record[fieldname] = record[fieldname] + ' ' + line[4:].strip()
+                    record[fieldname] = record[fieldname] + ' ' + line[4:].strip()
             else:
                 # List for holding names if data goes in multiple fields
                 fieldnames = []
@@ -316,7 +316,7 @@ class PatentTxtToTabular:
                             # First, save the fieldname
                             fieldname = subconfig[entry]["<fieldname>"]
                             fieldnames.append(fieldname)
-                            
+
                             if "<splitter>" in subconfig[entry]:
                                 splitter = subconfig[entry]["<splitter>"]
                             else:
@@ -409,41 +409,8 @@ class PatentTxtToTabular:
             colored("Writing records to %s ...", "green"), self.db_path,
         )
         self.db.conn.execute("begin exclusive;")
-
-        # Do the patent table first to check for duplicates
-        duplicates = set()
-        tablename = "patent"
-        rows = self.tables[tablename]
-        params = {"column_order": self.fieldnames[tablename], "alter":True}
-        if "id" in self.fieldnames[tablename]:
-            params["pk"] = "id"
-            params["not_null"] = {"id"}
-        for row in rows:
-            try:
-                self.db[tablename].insert(row, **params)
-            # If there's a duplicate entry, flag and check it
-            except sqlite3.IntegrityError:
-                # Get the offending ID number
-                duplicate_id = row["id"]
-
-                # Add it to the set of IDs to check
-                duplicates.add(duplicate_id)
-
-                # Pull existing row and assert that all elements are identical
-                for existing_row in self.db[tablename].rows_where("id == ?", [duplicate_id]):
-                    for element in existing_row:
-                        if element == "source_file":
-                            continue
-                        # Avoid Nones
-                        if existing_row[element]:
-                            assert existing_row[element] == row[element]
-
         for tablename, rows in self.tables.items():
-            # We did this table earlier
-            if tablename == "patent":
-                continue
-
-            params = {"column_order": self.fieldnames[tablename], "alter":True}
+            params = {"column_order": self.fieldnames[tablename], "alter": True}
             if "id" in self.fieldnames[tablename]:
                 params["pk"] = "id"
                 params["not_null"] = {"id"}
@@ -452,28 +419,9 @@ class PatentTxtToTabular:
                 len(rows),
                 tablename,
             )
-
-            for row in rows:
-                # If the patent isn't a duplicate, just insert it
-                if row["parent_id"] not in duplicates:
-                    self.db[tablename].insert(row, **params)
-
-                # If the patent is a duplicate, ensure all the fields we have for it match
-                else:
-                    for existing_row in self.db[tablename].rows_where("id == ?", [row["id"]]):
-                        print(row)
-                        print(existing_row)
-                        for element in existing_row:
-                            if element == "source_file":
-                                continue
-                            # Avoid Nones
-                            if existing_row[element]:
-                                assert existing_row[element] == row[element]
-                        self.logger.debug(
-                            colored("Patent %s has a perfect duplicate in table %s!", "yellow"),
-                            row["parent_id"],
-                            tablename,
-                        )
+            # For some reason we need to really limit the batch size
+            # or else you end up running into SQL variable limits somehow?
+            self.db[tablename].insert_all(rows, batch_size=20, **params)
 
 
 def expand_paths(path_expr):
@@ -505,7 +453,7 @@ def main():
         action="store",
         nargs="+",
         required=True,
-        help="TXT file or directory of TXT files (*.{txt, TXT}) to parse recursively" 
+        help="TXT file or directory of TXT files (*.{txt, TXT}) to parse recursively"
              "(multiple arguments can be passed",
     )
 
@@ -514,7 +462,7 @@ def main():
         "--recurse",
         action="store_true",
         help="if supplied, the parser will search subdirectories for"
-        " TXT files (*.{txt, TXT}) to parse",
+             " TXT files (*.{txt, TXT}) to parse",
     )
 
     arg_parser.add_argument(

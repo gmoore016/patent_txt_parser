@@ -21,6 +21,16 @@ except ImportError:
         """
         return text
 
+ENTRIES_TO_IGNORE = {
+    "pftaps19871110_wk45.txt": [
+        "H00003670",
+        "H00003689",
+        "H00003743",
+        "047035218",
+        "047035404",
+        "047035781",
+    ]
+}
 
 class PatentTxtToTabular:
     def __init__(self, txt_input, config, output_path, output_type, logger, clean, joiner, **kwargs, ):

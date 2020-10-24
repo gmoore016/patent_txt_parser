@@ -33,6 +33,7 @@ ENTRIES_TO_IGNORE = {
     ]
 }
 
+
 class PatentTxtToTabular:
     def __init__(self, txt_input, config, output_path, output_type, logger, clean, joiner, **kwargs, ):
 
@@ -282,7 +283,6 @@ class PatentTxtToTabular:
                     # shouldn't be appended to the previous record
                     last_header = ""
 
-
                 # If we don't care about the new section, just say it has no relevant
                 # fields and continue. Don't create a new record or write yet, since that
                 # will create empty lines for the null section
@@ -447,7 +447,7 @@ class PatentTxtToTabular:
                         records_to_add.append(row)
 
                     # If it's the main patent entry and we care about it, append it
-                    elif row["id"] not in docs_to_ignore:
+                    elif tablename == "patent" and row["id"] not in docs_to_ignore:
                         records_to_add.append(row)
 
             # If we care about all records in the file, just add all the rows

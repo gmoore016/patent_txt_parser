@@ -130,3 +130,18 @@ What is the purpose of this check digit? Unclear--the above is the complete disc
 Unfortunately, the patent number is never present without the check digit, so if we're pulling the raw data from the APS files, we have no choice but to pull the check digit. However, in the interest of keeping the data "pure," we don't strip the check digit ourselves. 
 
 What does this mean for using the data? For any patents 1976-2001, the first step of any analysis should probably be dropping the last character of all the patent and application numbers. 
+
+## Entries to Ignore
+
+As nice as it would be if our data were perfect, that's unfortunately not the case. Sometimes there are errors in the USPTO data which we need to clear out of our build, whether they're duplicates, malformed entries, or otherwise. To do so, we create a dictionary `ENTRIES_TO_IGNORE` at the top of our script which links filenames to a list of patent numbers which we want to ignore in our build. It is suggested you comment why a patent is being stripped. 
+
+For example, if the dictionary looked like this:
+```python
+ENTRIES_TO_IGNORE = {
+  "pftaps19871110_wk45.txt": [
+    "H00003670", # Duplicate from November 3, 1987
+    "H00003689", # Malformed duplicate from November 3, 1987
+  ]
+}
+```
+the parser would ignore patent `H00003670` when found in file `pftaps19871110_wk45.txt`. This allows us to surgically strip out only the problematic patents while leaving the rest of the data unaffected.

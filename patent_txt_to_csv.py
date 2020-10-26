@@ -457,6 +457,13 @@ class PatentTxtToTabular:
             # For some reason we need to really limit the batch size
             # or else you end up running into SQL variable limits somehow?
             self.db[tablename].insert_all(records_to_add, batch_size=20, **params)
+            
+            # for record in records_to_add:
+            #    try: 
+            #        self.db[tablename].insert(record, **params)
+            #    except sqlite3.IntegrityError:
+            #        print("Integrity error when adding the following row: " + str(row) + "; row skipped")
+
 
 
 def expand_paths(path_expr):

@@ -143,6 +143,10 @@ class PatentTxtToTabular:
 
             self.flush_to_disk()
 
+        self.create_indices()
+
+        self.logger.info(colored("Parsing complete!", "green"))
+
     def flush_to_disk(self):
         if self.output_type == "csv":
             self.write_csv_files()
@@ -463,6 +467,33 @@ class PatentTxtToTabular:
             #    except sqlite3.IntegrityError:
             #        print("Integrity error when adding the following row: " + str(row) + "; row skipped")
 
+    def create_indices(self):
+        """
+        Generates indices for new tables.
+        First, checks that id is unique for each table.
+        Then, for non-patent tables, generates an index on parent_id.
+        """
+        for tablename in self.db.table_names():
+            # Flag we're indexing the table
+            self.logger.info(colored("Indexing " + tablename + " table...", "green"))
+
+            # Ensure unique IDs are unique
+            try:
+                self.db[tablename].create_index(["id"], unique=True)
+
+            # If they're not unique, print the problematic patent numbers
+            except sqlite3.IntegrityError:
+                self.logger.warning(colored(tablename + " contains duplicates of the following IDs; could not index:", "yellow"))
+                for row in self.db.conn.execute(
+                        "SELECT id FROM " + tablename + " GROUP BY id HAVING ( COUNT(id) > 1 );"
+                ):
+                    self.logger.warning(colored(str(row), "yellow"))
+
+            # Index subtables for faster querying
+            if tablename != "patent":
+                self.db[tablename].create_index(["parent_id"])
+
+
 
 
 def expand_paths(path_expr):
@@ -546,9 +577,6 @@ def main():
 
     convertor = PatentTxtToTabular(**vars(args), logger=logger)
     convertor.convert()
-
-    print("Parsing complete!")
-
 
 if __name__ == "__main__":
     main()

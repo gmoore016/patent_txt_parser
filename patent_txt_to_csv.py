@@ -543,7 +543,6 @@ def main():
 
     logger = logging.getLogger(__name__)
     logger.setLevel(log_level)
-    logger.addHandler(logging.StreamHandler())
 
     convertor = PatentTxtToTabular(**vars(args), logger=logger)
     convertor.convert()

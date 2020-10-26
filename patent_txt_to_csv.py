@@ -423,7 +423,6 @@ class PatentTxtToTabular:
         for tablename, rows in self.tables.items():
             params = {"column_order": self.fieldnames[tablename], "alter": True}
             if "id" in self.fieldnames[tablename]:
-                params["pk"] = "id"
                 params["not_null"] = {"id"}
             self.logger.debug(
                 colored("Writing %d records to `%s`...", "magenta"),

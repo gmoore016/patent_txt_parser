@@ -23,13 +23,31 @@ except ImportError:
 
 # Dictionary of files containing document numbers to ignore
 ENTRIES_TO_IGNORE = {
+    "pftaps19871103_wk44.txt": [
+        "047029323", # These overlap with October 27th
+        "047029382",
+    ],
+
     "pftaps19871110_wk45.txt": [
-        "H00003670",
+        "H00003670", # These overlap with November 3rd
         "H00003689",
         "H00003743",
         "047035218",
         "047035404",
         "047035781",
+        "047031492", # These overlap with October 27th
+        "047031883",
+        "047032049",
+        "047032634",
+        "047032952",
+        "047033185",
+        "047033908",
+        "047033894",
+        "047034327",
+        "047034335",
+        "047034491",
+        "047034653",
+        "047035170",
     ]
 }
 

@@ -421,6 +421,8 @@ class PatentTxtToTabular:
         for tablename, rows in self.tables.items():
             output_file = self.output_path / f"{tablename}.csv"
 
+            records_to_add = self.filter_records()
+            
             if output_file.exists():
                 self.logger.debug(
                     colored("CSV file %s exists; records will be appended.", "yellow"),
@@ -429,13 +431,13 @@ class PatentTxtToTabular:
 
                 with output_file.open("a", newline='') as _fh:
                     writer = csv.DictWriter(_fh, fieldnames=self.fieldnames[tablename])
-                    writer.writerows(rows)
+                    writer.writerows(records_to_add)
 
             else:
                 with output_file.open("w", newline='') as _fh:
                     writer = csv.DictWriter(_fh, fieldnames=self.fieldnames[tablename])
                     writer.writeheader()
-                    writer.writerows(rows)
+                    writer.writerows(records_to_add)
 
     def write_sqlitedb(self):
         self.logger.info(
@@ -452,39 +454,40 @@ class PatentTxtToTabular:
                 tablename,
             )
 
-            # We want to ignore some records that are in the data by mistake
-            # First, check if the current file contains any ignored entries
-            if self.current_filename in ENTRIES_TO_IGNORE:
-                # Get the list of entries to ignore
-                docs_to_ignore = ENTRIES_TO_IGNORE[self.current_filename]
-
-                # Create list of records to include in output
-                records_to_add = []
-
-                # Check if each row should be included
-                for row in rows:
-                    # If it's a child document and we care about the parent, append it
-                    if "parent_id" in row and row["parent_id"] not in docs_to_ignore:
-                        records_to_add.append(row)
-
-                    # If it's the main patent entry and we care about it, append it
-                    elif tablename == "patent" and row["id"] not in docs_to_ignore:
-                        records_to_add.append(row)
-
-            # If we care about all records in the file, just add all the rows
-            else:
-                records_to_add = rows
+            # Ignore ENTRIES_TO_IGNORE
+            records_to_add = self.filter_records()
 
             # For some reason we need to really limit the batch size
             # or else you end up running into SQL variable limits somehow?
             self.db[tablename].insert_all(records_to_add, batch_size=20, **params)
             
-            # for record in records_to_add:
-            #    try: 
-            #        self.db[tablename].insert(record, **params)
-            #    except sqlite3.IntegrityError:
-            #        print("Integrity error when adding the following row: " + str(row) + "; row skipped")
+    
+    def filter_records(self):
+        # We want to ignore some records that are in the data by mistake
+        # First, check if the current file contains any ignored entries
+        if self.current_filename in ENTRIES_TO_IGNORE:
+            # Get the list of entries to ignore
+            docs_to_ignore = ENTRIES_TO_IGNORE[self.current_filename]
 
+            # Create list of records to include in output
+            records_to_add = []
+
+            # Check if each row should be included
+            for row in rows:
+                # If it's a child document and we care about the parent, append it
+                if "parent_id" in row and row["parent_id"] not in docs_to_ignore:
+                    records_to_add.append(row)
+
+                # If it's the main patent entry and we care about it, append it
+                elif tablename == "patent" and row["id"] not in docs_to_ignore:
+                    records_to_add.append(row)
+
+        # If we care about all records in the file, just add all the rows
+        else:
+            records_to_add = rows
+
+        return records_to_add
+    
     def create_indices(self):
         """
         Generates indices for new tables.

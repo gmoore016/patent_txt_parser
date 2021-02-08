@@ -421,6 +421,8 @@ class PatentTxtToTabular:
         for tablename, rows in self.tables.items():
             output_file = self.output_path / f"{tablename}.csv"
 
+            records_to_add = self.filter_records()
+            
             if output_file.exists():
                 self.logger.debug(
                     colored("CSV file %s exists; records will be appended.", "yellow"),
@@ -429,13 +431,13 @@ class PatentTxtToTabular:
 
                 with output_file.open("a", newline='') as _fh:
                     writer = csv.DictWriter(_fh, fieldnames=self.fieldnames[tablename])
-                    writer.writerows(rows)
+                    writer.writerows(records_to_add)
 
             else:
                 with output_file.open("w", newline='') as _fh:
                     writer = csv.DictWriter(_fh, fieldnames=self.fieldnames[tablename])
                     writer.writeheader()
-                    writer.writerows(rows)
+                    writer.writerows(records_to_add)
 
     def write_sqlitedb(self):
         self.logger.info(

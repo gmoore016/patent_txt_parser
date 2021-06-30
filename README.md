@@ -48,7 +48,7 @@ This would save the name, city, state, and country for each `INVT` field to thei
 
 Your `PATN` field should contain a `<primary_key>` field designating a unique ID number for the patent; we recommend `WKU`, the patent number. These numbers must have a 1-to-1 relationship with the patents--each patent has only one number, and each number corresponds to only one patent. This "key" will be copied to child tables so it is possible to link across tables in the database.
 
-Each secondary entity within the database will contain both `id` and `parent_id` fields. `id` will represent the parent patent of that entry, while `parent_id` will be a unique identifier within the table composed of the parent id and the entry's position in the patent's APS file. For example, if `patent` contains two records with `id`s `pat1` and `pat2`, the `citation` table may contain several records with `parent_id` `pat1` and `pat2`. However, all `id` fields within `citation` will be unique--e.g. you may have `pat1_1`, `pat2_1`, and `pat2_2`.
+Each secondary entity within the database will contain both `id` and `patent_id` fields. `id` will represent the parent patent of that entry, while `patent_id` will be a unique identifier within the table composed of the parent id and the entry's position in the patent's APS file. For example, if `patent` contains two records with `id`s `pat1` and `pat2`, the `citation` table may contain several records with `patent_id` `pat1` and `pat2`. However, all `id` fields within `citation` will be unique--e.g. you may have `pat1_1`, `pat2_1`, and `pat2_2`.
 
 ### Joiners
 

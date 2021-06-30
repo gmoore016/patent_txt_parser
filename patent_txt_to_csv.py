@@ -227,7 +227,7 @@ class PatentTxtToTabular:
 
         for entity in fieldnames:
             if entity != "patent":
-                fieldnames[entity] = ["parent_id"] + fieldnames[entity]
+                fieldnames[entity] = ["patent_id"] + fieldnames[entity]
             fieldnames[entity] = ["id"] + fieldnames[entity]
 
         return fieldnames
@@ -298,7 +298,7 @@ class PatentTxtToTabular:
                     record = self.new_record(subconfig)
 
                     record["id"] = str(patent_pk) + '_' + str(pk_counter)
-                    record["parent_id"] = patent_pk
+                    record["patent_id"] = patent_pk
                     pk_counter += 1
 
                     # Since headers don't cross entities, any starting blank lines
@@ -372,7 +372,7 @@ class PatentTxtToTabular:
                                     # Generate a new record with keys
                                     record = self.new_record(subconfig)
                                     record["id"] = str(patent_pk) + '_' + str(pk_counter)
-                                    record["parent_id"] = str(patent_pk)
+                                    record["patent_id"] = str(patent_pk)
                                     pk_counter += 1
 
                                     # Record the new value
@@ -406,7 +406,7 @@ class PatentTxtToTabular:
                             record = self.new_record(subconfig)
 
                             record["id"] = str(patent_pk) + '_' + str(pk_counter)
-                            record["parent_id"] = patent_pk
+                            record["patent_id"] = patent_pk
                             pk_counter += 1
 
         # Add to list of those entities found so far
@@ -475,7 +475,7 @@ class PatentTxtToTabular:
             # Check if each row should be included
             for row in rows:
                 # If it's a child document and we care about the parent, append it
-                if "parent_id" in row and row["parent_id"] not in docs_to_ignore:
+                if "patent_id" in row and row["patent_id"] not in docs_to_ignore:
                     records_to_add.append(row)
 
                 # If it's the main patent entry and we care about it, append it
@@ -492,7 +492,7 @@ class PatentTxtToTabular:
         """
         Generates indices for new tables.
         First, checks that id is unique for each table.
-        Then, for non-patent tables, generates an index on parent_id.
+        Then, for non-patent tables, generates an index on patent_id.
         """
         for tablename in self.db.table_names():
             # Flag we're indexing the table
@@ -512,7 +512,7 @@ class PatentTxtToTabular:
 
             # Index subtables for faster querying
             if tablename != "patent":
-                self.db[tablename].create_index(["parent_id"])
+                self.db[tablename].create_index(["patent_id"])
 
 
 

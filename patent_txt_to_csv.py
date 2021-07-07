@@ -455,14 +455,14 @@ class PatentTxtToTabular:
             )
 
             # Ignore ENTRIES_TO_IGNORE
-            records_to_add = self.filter_records()
+            records_to_add = self.filter_records(rows)
 
             # For some reason we need to really limit the batch size
             # or else you end up running into SQL variable limits somehow?
             self.db[tablename].insert_all(records_to_add, batch_size=20, **params)
             
     
-    def filter_records(self):
+    def filter_records(self, rows):
         # We want to ignore some records that are in the data by mistake
         # First, check if the current file contains any ignored entries
         if self.current_filename in ENTRIES_TO_IGNORE:

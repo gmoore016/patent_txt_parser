@@ -1,3 +1,11 @@
+"""
+Script designed to take a directory of APS format TXT files provided by the USPTO and convert
+them to a SQLite database.
+
+Note we attempted to parallelize this process, but because SQLite inserts must necessarily be
+performed serially we had minimal performance gains.
+"""
+
 import argparse  # Takes command line arguments
 import csv  # Handles CSV output
 import logging  # Handles logging output
@@ -24,18 +32,18 @@ except ImportError:
 # Dictionary of files containing document numbers to ignore
 ENTRIES_TO_IGNORE = {
     "pftaps19871103_wk44.txt": [
-        "047029323", # These overlap with October 27th
+        "047029323",  # These overlap with October 27th
         "047029382",
     ],
 
     "pftaps19871110_wk45.txt": [
-        "H00003670", # These overlap with November 3rd
+        "H00003670",  # These overlap with November 3rd
         "H00003689",
         "H00003743",
         "047035218",
         "047035404",
         "047035781",
-        "047031492", # These overlap with October 27th
+        "047031492",  # These overlap with October 27th
         "047031883",
         "047032049",
         "047032634",
@@ -53,12 +61,28 @@ ENTRIES_TO_IGNORE = {
 
 
 class PatentTxtToTabular:
+    """
+    Main object for the conversion. All meaningful computation takes place within this object.
+    """
     def __init__(self, txt_input, config, output_path, output_type, logger, clean, joiner, **kwargs, ):
+        """
+        Initializes the converter
 
+        txt_input: Single TXT file or path to directory of TXT files
+        config: YAML configuration file linking APS fields to table and column names
+        output_path: Path to output directory, will either hold the SQLite database or collection of CSV files
+        output_type: Either "sqlite" or "csv"
+        logger: Logger object
+        clean: Whether to clean the output directory before writing; if not clean, existing files are appended
+        joiner: String to join multiple values together
+        """
+        # Passes the logger object to the class
         self.logger = logger
 
+        # Sets the default joiner
         self.default_joiner = joiner
 
+        # Gets list of TXT files to parse
         self.txt_files = []
         for input_path in txt_input:
             for path in expand_paths(input_path):
@@ -75,6 +99,7 @@ class PatentTxtToTabular:
         # Make sure output path is valid before parsing so we don't waste
         # all that time!
         self.output_path = Path(output_path)
+
         # Delete existing contents if we want a new run
         if clean:
             shutil.rmtree(self.output_path)
@@ -90,6 +115,7 @@ class PatentTxtToTabular:
         # Tracks primary keys and value tables
         self.init_cache_vars()
 
+        # Initialize the database if using SQLite output
         if self.output_type == "sqlite":
             try:
                 from sqlite_utils import Database as SqliteDB
@@ -112,10 +138,18 @@ class PatentTxtToTabular:
                 raise
 
     def init_cache_vars(self):
+        """
+        Initializes empty dictionaries for storing output
+        """
         self.tables = defaultdict(list)
         self.table_pk_idx = defaultdict(lambda: defaultdict(int))
 
     def yield_txt_doc(self, filepath):
+        """
+        Given a TXT file path, this iterates through the results and yields all data for a single patent document--
+        i.e., it splits the file based on "PATN" headers. Each line within the document is stored as a string
+        in the yielded list
+        """
         # List for storing text
         txt_doc = []
 
@@ -141,9 +175,14 @@ class PatentTxtToTabular:
             yield i - len(txt_doc), "".join(txt_doc)
 
     def convert(self):
+        """
+        Once the object has been initialized, this method reads the data from the TXT file
+        and maps it to the relevant field names. It then writes the data to CSV or SQLite.
+        """
         if not self.txt_files:
             self.logger.warning(colored("No input files to prcoess!", "red", ))
 
+        # Process each input file
         for input_file in self.txt_files:
 
             self.logger.info(colored("Processing %s...", "green"), input_file.resolve())
@@ -159,22 +198,38 @@ class PatentTxtToTabular:
 
             self.logger.info(colored("...%d records processed!", "green"), i + 1)
 
+            # Write the output to CSV or SQLite after each file
             self.flush_to_disk()
 
         self.logger.info(colored("Parsing complete!", "green"))
 
     def flush_to_disk(self):
+        """
+        Writes the output to CSV or SQLite depending on output-type flag
+        """
         if self.output_type == "csv":
             self.write_csv_files()
         if self.output_type == "sqlite":
             self.write_sqlitedb()
 
+        # Reset the cache
         self.init_cache_vars()
 
     def get_fieldnames(self):
+        """
+        Retrieves mapping from APS paths to field names based on config.yaml file
+        passed during object initialization.
+
+        Returns dictionary of dictionaries, where outer dictionary is keyed by
+        four-letter APS headers, the inner dictionary is keyed by three-letter
+        APS subheaders, and the values are the name of the field in the database.
+        """
         fieldnames = defaultdict(list)
 
         def add_fieldnames(config, _fieldnames, parent_entity=None):
+            """
+            Internal function that is used recursively to dig down into recursive entities
+            """
             if isinstance(config, str):
                 if ":" in config:
                     _fieldnames.append(config.split(":")[0])
@@ -231,6 +286,9 @@ class PatentTxtToTabular:
         return fieldnames
 
     def new_record(self, subconfig):
+        """
+        Generates a new record object based on the parameters in subconfig
+        """
         # Generate a new record
         record = {}
 
@@ -411,7 +469,9 @@ class PatentTxtToTabular:
         self.tables[current_entity].append(record)
 
     def write_csv_files(self):
-
+        """
+        Given the parsed results stored in self.tables, write the results to the CSV files
+        """
         self.logger.info(
             colored("writing csv files to %s ...", "green"), self.output_path.resolve()
         )
@@ -438,6 +498,9 @@ class PatentTxtToTabular:
                     writer.writerows(records_to_add)
 
     def write_sqlitedb(self):
+        """
+        Given the results stored in self.tables, write the results to db.sqlite
+        """
         self.logger.info(
             colored("Writing records to %s ...", "green"), self.db_path,
         )
@@ -458,9 +521,12 @@ class PatentTxtToTabular:
             # For some reason we need to really limit the batch size
             # or else you end up running into SQL variable limits somehow?
             self.db[tablename].insert_all(records_to_add, batch_size=20, **params)
-            
-    
+
     def filter_records(self, tablename, rows):
+        """
+        Given a list of records, filter out those that are in the ENTRIES_TO_IGNORE.
+        These records are confirmed by the USPTO to be errors.
+        """
         # We want to ignore some records that are in the data by mistake
         # First, check if the current file contains any ignored entries
         if self.current_filename in ENTRIES_TO_IGNORE:
@@ -488,6 +554,9 @@ class PatentTxtToTabular:
     
 
 def expand_paths(path_expr):
+    """
+    Gets all files of subdirectories of given path expression
+    """
     path = Path(path_expr).expanduser()
     return Path(path.root).glob(
         str(Path("").joinpath(*path.parts[1:] if path.is_absolute() else path.parts))
@@ -569,6 +638,7 @@ def main():
 
     convertor = PatentTxtToTabular(**vars(args), logger=logger)
     convertor.convert()
+
 
 if __name__ == "__main__":
     main()
